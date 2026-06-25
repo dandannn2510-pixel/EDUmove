@@ -51,6 +51,7 @@ export default function RootLayout({
       >
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <Navbar />
+        <div className="h-20 w-full shrink-0" />
         {children}
       </body>
     </html>
