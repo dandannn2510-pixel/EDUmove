@@ -1,0 +1,186 @@
+'use client';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { 
+  ArrowLeft, FlaskConical, Zap, Orbit, Wind, 
+  Target, Flame, Star, Mountain, Activity, ChevronRight, PlayCircle, ShieldAlert 
+} from 'lucide-react';
+
+export default function Grade6Science() {
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
+
+  if (!isMounted) return null;
+
+  return (
+    <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#0f172a] dark:text-white relative font-sans selection:bg-emerald-200 selection:text-emerald-900 dark:selection:bg-cyan-500 dark:selection:text-white overflow-x-hidden transition-colors duration-300">
+      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;800;900&display=swap');` }} />
+      {/* Background Glow */}
+      <div className="fixed top-1/4 left-1/4 w-96 h-96 bg-emerald-400/20 dark:bg-emerald-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] pointer-events-none z-0 transition-colors duration-300"></div>
+      <div className="fixed bottom-1/4 right-1/4 w-96 h-96 bg-cyan-400/20 dark:bg-cyan-600/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] pointer-events-none z-0 transition-colors duration-300"></div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-12" style={{ fontFamily: "'Kanit', sans-serif" }}>
+        
+        {/* ปุ่มกลับ */}
+        <Link href="/grade/p6" className="inline-flex items-center gap-2 text-slate-600 hover:text-emerald-600 dark:text-slate-400 dark:hover:text-cyan-400 transition-colors mb-10 font-bold bg-white dark:bg-slate-800/50 px-6 py-3 rounded-full border border-slate-200 dark:border-slate-700 backdrop-blur-md shadow-sm hover:shadow-md hover:scale-105">
+          <ArrowLeft size={20} /> กลับไปหน้าเลือกวิชา
+        </Link>
+
+        <header className="mb-16 text-center md:text-left">
+          <div className="inline-block bg-emerald-100 border border-emerald-200 text-emerald-700 dark:bg-emerald-500/20 dark:border-emerald-500/50 dark:text-emerald-400 font-black px-4 py-1.5 rounded-full text-sm mb-4 transition-colors duration-300">
+            หลักสูตรแกนกลางฯ วิทยาศาสตร์และเทคโนโลยี
+          </div>
+          <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-600 dark:from-emerald-400 dark:to-cyan-500 mb-4 drop-shadow-sm dark:drop-shadow-lg">
+            วิทยาศาสตร์ ป.6
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 text-xl max-w-3xl transition-colors duration-300">
+            เลือกบทเรียนตามตัวชี้วัดเพื่อเข้าสู่ห้องปฏิบัติการเสมือนจริง และทดสอบฝีมือในด่านท้าทายประจำเทอม!
+          </p>
+        </header>
+
+        {/* ================= ภาคเรียนที่ 1 ================= */}
+        <section className="mb-20">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="bg-cyan-500 text-white dark:text-slate-950 font-black px-5 py-2 rounded-xl text-2xl shadow-[0_0_20px_rgba(6,182,212,0.3)]">ภาคเรียนที่ 1</div>
+            <div className="h-[2px] flex-1 bg-gradient-to-r from-cyan-500/50 to-transparent"></div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            {/* บทที่ 1 */}
+            <div className="bg-white dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-[2rem] p-8 hover:-translate-y-2 transition-all duration-300 shadow-sm hover:shadow-[0_10px_30px_rgba(59,130,246,0.15)] dark:hover:shadow-[0_0_30px_rgba(59,130,246,0.2)] group flex flex-col h-full">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-blue-400 to-indigo-500 shadow-lg mb-6 border-2 border-white dark:border-slate-700">
+                <Activity size={40} />
+              </div>
+              <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white transition-colors">บทที่ 1: ร่างกายของเรา</h3>
+              <p className="text-slate-600 dark:text-slate-400 font-medium mb-6 flex-grow transition-colors">สารอาหาร ระบบย่อยอาหาร และการเจริญเติบโต</p>
+              <Link href="/lessons/p6/chapter1" className="w-full py-3 rounded-xl font-black transition-all flex items-center justify-center gap-2 bg-blue-50 text-blue-600 border border-blue-200 hover:bg-blue-600 hover:text-white dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-500/50 dark:hover:bg-blue-500 dark:hover:text-white shadow-sm">
+                เข้าสู่เนื้อหา <PlayCircle size={20} />
+              </Link>
+            </div>
+
+            {/* บทที่ 2 */}
+            <div className="bg-white dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-[2rem] p-8 hover:-translate-y-2 transition-all duration-300 shadow-sm hover:shadow-[0_10px_30px_rgba(16,185,129,0.15)] dark:hover:shadow-[0_0_30px_rgba(16,185,129,0.2)] group flex flex-col h-full">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-emerald-400 to-teal-500 shadow-lg mb-6 border-2 border-white dark:border-slate-700">
+                <FlaskConical size={40} />
+              </div>
+              <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white transition-colors">บทที่ 2: การแยกสารผสม</h3>
+              <p className="text-slate-600 dark:text-slate-400 font-medium mb-6 flex-grow transition-colors">การกรอง การตกตะกอน และการแยกสารในชีวิตประจำวัน</p>
+              <Link href="/lessons/p6/chapter2" className="w-full py-3 rounded-xl font-black transition-all flex items-center justify-center gap-2 bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-600 hover:text-white dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-500/50 dark:hover:bg-emerald-500 dark:hover:text-slate-950 shadow-sm">
+                เข้าสู่เนื้อหา <PlayCircle size={20} />
+              </Link>
+            </div>
+
+            {/* บทที่ 3 */}
+            <div className="bg-white dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-[2rem] p-8 hover:-translate-y-2 transition-all duration-300 shadow-sm hover:shadow-[0_10px_30px_rgba(245,158,11,0.15)] dark:hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] group flex flex-col h-full">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white dark:text-slate-900 bg-gradient-to-br from-yellow-400 to-amber-500 shadow-lg mb-6 border-2 border-white dark:border-slate-700">
+                <Zap size={40} />
+              </div>
+              <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white transition-colors">บทที่ 3: ไฟฟ้า</h3>
+              <p className="text-slate-600 dark:text-slate-400 font-medium mb-6 flex-grow transition-colors">วงจรไฟฟ้าอย่างง่าย การต่ออนุกรมและขนาน</p>
+              <Link href="/lessons/p6/chapter3" className="w-full py-3 rounded-xl font-black transition-all flex items-center justify-center gap-2 bg-amber-50 text-amber-600 border border-amber-200 hover:bg-amber-500 hover:text-white dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-500/50 dark:hover:bg-amber-500 dark:hover:text-slate-950 shadow-sm">
+                เข้าสู่เนื้อหา <PlayCircle size={20} />
+              </Link>
+            </div>
+          </div>
+
+          {/* ด่านท้าทาย 1 */}
+          <div className="bg-gradient-to-r from-white to-cyan-50 dark:from-slate-900 dark:to-cyan-900/40 border border-slate-200 dark:border-cyan-500/50 rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden shadow-md dark:shadow-xl transition-colors duration-300">
+            <div className="absolute -right-10 -top-10 text-cyan-500/10 pointer-events-none"><Target size={250} strokeWidth={1} /></div>
+            <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
+                  <Star className="text-cyan-500 dark:text-cyan-400 animate-pulse" fill="currentColor" size={32} />
+                  <h3 className="text-3xl font-black text-slate-900 dark:text-white">ด่านท้าทายประจำเทอม 1</h3>
+                </div>
+                <p className="text-slate-600 dark:text-cyan-200/80 font-medium text-lg">ทดสอบความรวบยอดทั้งหมดของเทอม 1 เลือกระดับความยากที่คุณต้องการ!</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full md:w-auto">
+                <Link href="/lessons/p6/challenge1/easy" className="bg-white dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/50 hover:bg-emerald-50 dark:hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-slate-950 px-6 py-4 rounded-2xl font-black flex justify-between items-center transition-all group shadow-sm min-w-[140px]">
+                  <span>🟢 ง่าย</span><ChevronRight className="group-hover:translate-x-1" />
+                </Link>
+                <Link href="/lessons/p6/challenge1/medium" className="bg-white dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/50 hover:bg-amber-50 dark:hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-slate-950 px-6 py-4 rounded-2xl font-black flex justify-between items-center transition-all group shadow-sm min-w-[140px]">
+                  <span>🟡 กลาง</span><ChevronRight className="group-hover:translate-x-1" />
+                </Link>
+                <Link href="/lessons/p6/challenge1/hard" className="bg-white dark:bg-rose-500/20 border border-rose-200 dark:border-rose-500/50 hover:bg-rose-50 dark:hover:bg-rose-500 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-slate-950 px-6 py-4 rounded-2xl font-black flex justify-between items-center transition-all group shadow-sm min-w-[140px]">
+                  <span>🔴 ยาก</span><ChevronRight className="group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= ภาคเรียนที่ 2 ================= */}
+        <section className="mb-20">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="bg-orange-500 text-white font-black px-5 py-2 rounded-xl text-2xl shadow-[0_0_20px_rgba(249,115,22,0.3)]">ภาคเรียนที่ 2</div>
+            <div className="h-[2px] flex-1 bg-gradient-to-r from-orange-500/50 to-transparent"></div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+            {/* บทที่ 4 */}
+            <div className="bg-white dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-[2rem] p-8 hover:-translate-y-2 transition-all duration-300 shadow-sm hover:shadow-[0_10px_30px_rgba(168,85,247,0.15)] dark:hover:shadow-[0_0_30px_rgba(168,85,247,0.2)] group flex flex-col h-full">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-purple-400 to-pink-500 shadow-lg mb-6 border-2 border-white dark:border-slate-700">
+                <Orbit size={40} />
+              </div>
+              <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white transition-colors">บทที่ 4: ดาราศาสตร์</h3>
+              <p className="text-slate-600 dark:text-slate-400 font-medium mb-6 flex-grow transition-colors">อุปราคา และเทคโนโลยีอวกาศ</p>
+              <Link href="/lessons/p6/chapter4" className="w-full py-3 rounded-xl font-black transition-all flex items-center justify-center gap-2 bg-purple-50 text-purple-600 border border-purple-200 hover:bg-purple-600 hover:text-white dark:bg-purple-500/20 dark:text-purple-400 dark:border-purple-500/50 dark:hover:bg-purple-500 dark:hover:text-white shadow-sm">
+                เข้าสู่เนื้อหา <PlayCircle size={20} />
+              </Link>
+            </div>
+
+            {/* บทที่ 5 */}
+            <div className="bg-white dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-[2rem] p-8 hover:-translate-y-2 transition-all duration-300 shadow-sm hover:shadow-[0_10px_30px_rgba(249,115,22,0.15)] dark:hover:shadow-[0_0_30px_rgba(249,115,22,0.2)] group flex flex-col h-full">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg mb-6 border-2 border-white dark:border-slate-700">
+                <Mountain size={40} />
+              </div>
+              <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white transition-colors">บทที่ 5: โลกของเรา</h3>
+              <p className="text-slate-600 dark:text-slate-400 font-medium mb-6 flex-grow transition-colors">วัฏจักรหิน และการเกิดซากดึกดำบรรพ์</p>
+              <Link href="/lessons/p6/chapter5" className="w-full py-3 rounded-xl font-black transition-all flex items-center justify-center gap-2 bg-orange-50 text-orange-600 border border-orange-200 hover:bg-orange-600 hover:text-white dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/50 dark:hover:bg-orange-500 dark:hover:text-white shadow-sm">
+                เข้าสู่เนื้อหา <PlayCircle size={20} />
+              </Link>
+            </div>
+
+            {/* บทที่ 6 */}
+            <div className="bg-white dark:bg-slate-800/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-[2rem] p-8 hover:-translate-y-2 transition-all duration-300 shadow-sm hover:shadow-[0_10px_30px_rgba(244,63,94,0.15)] dark:hover:shadow-[0_0_30px_rgba(244,63,94,0.2)] group flex flex-col h-full">
+              <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-white bg-gradient-to-br from-rose-400 to-pink-600 shadow-lg mb-6 border-2 border-white dark:border-slate-700">
+                <Wind size={40} />
+              </div>
+              <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white transition-colors">บทที่ 6: ภัยธรรมชาติ</h3>
+              <p className="text-slate-600 dark:text-slate-400 font-medium mb-6 flex-grow transition-colors">ลมมรสุม ปรากฏการณ์เรือนกระจก และภัยพิบัติ</p>
+              <Link href="/lessons/p6/chapter6" className="w-full py-3 rounded-xl font-black transition-all flex items-center justify-center gap-2 bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-600 hover:text-white dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-500/50 dark:hover:bg-rose-500 dark:hover:text-white shadow-sm">
+                เข้าสู่เนื้อหา <PlayCircle size={20} />
+              </Link>
+            </div>
+          </div>
+
+          {/* ด่านท้าทาย 2 */}
+          <div className="bg-gradient-to-r from-white to-orange-50 dark:from-slate-900 dark:to-orange-900/40 border border-slate-200 dark:border-orange-500/50 rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden shadow-md dark:shadow-xl transition-colors duration-300">
+            <div className="absolute -right-10 -top-10 text-orange-500/10 pointer-events-none"><ShieldAlert size={250} strokeWidth={1} /></div>
+            <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
+              <div className="flex-1 text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start gap-3 mb-3">
+                  <Flame className="text-orange-500 dark:text-orange-400 animate-pulse" fill="currentColor" size={32} />
+                  <h3 className="text-3xl font-black text-slate-900 dark:text-white">ด่านท้าทายประจำเทอม 2</h3>
+                </div>
+                <p className="text-slate-600 dark:text-orange-200/80 font-medium text-lg">เอาตัวรอดจากสถานการณ์ภัยพิบัติและอวกาศ พิสูจน์ความรู้ด้วยตัวคุณเอง!</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full md:w-auto">
+                <Link href="/lessons/p6/challenge2/easy" className="bg-white dark:bg-emerald-500/20 border border-emerald-200 dark:border-emerald-500/50 hover:bg-emerald-50 dark:hover:bg-emerald-500 text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-slate-950 px-6 py-4 rounded-2xl font-black flex justify-between items-center transition-all group shadow-sm min-w-[140px]">
+                  <span>🟢 ง่าย</span><ChevronRight className="group-hover:translate-x-1" />
+                </Link>
+                <Link href="/lessons/p6/challenge2/medium" className="bg-white dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/50 hover:bg-amber-50 dark:hover:bg-amber-500 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-slate-950 px-6 py-4 rounded-2xl font-black flex justify-between items-center transition-all group shadow-sm min-w-[140px]">
+                  <span>🟡 กลาง</span><ChevronRight className="group-hover:translate-x-1" />
+                </Link>
+                <Link href="/lessons/p6/challenge2/hard" className="bg-white dark:bg-rose-500/20 border border-rose-200 dark:border-rose-500/50 hover:bg-rose-50 dark:hover:bg-rose-500 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-slate-950 px-6 py-4 rounded-2xl font-black flex justify-between items-center transition-all group shadow-sm min-w-[140px]">
+                  <span>🔴 ยาก</span><ChevronRight className="group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  );
+}
