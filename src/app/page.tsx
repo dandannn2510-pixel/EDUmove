@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   GraduationCap, Maximize, X, ArrowRight, Atom, MapPin, Mail, Phone,
@@ -54,9 +55,8 @@ export default function Home() {
   if (!isMounted) return null;
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] selection:bg-amber-200 selection:text-amber-900" style={{ fontFamily: "'Prompt', sans-serif" }}>
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
-
+    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] selection:bg-amber-200 selection:text-amber-900" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
+      
       {/* ลายจุดสมุดโน้ตจางๆ */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
 
@@ -89,7 +89,14 @@ export default function Home() {
 
         {/* โลโก้ */}
         <div className="mb-6">
-          <img src="/logo.png" alt="edumove logo" className="h-32 w-32 md:h-40 md:w-40 object-contain drop-shadow-xl dark:drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" />
+          <Image
+            src="/logo.png"
+            alt="EDUmove โลโก้"
+            width={160}
+            height={160}
+            priority
+            className="object-contain drop-shadow-xl dark:drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]"
+          />
         </div>
 
         {/* ชื่อแบรนด์ใหญ่ */}

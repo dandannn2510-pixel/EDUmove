@@ -36,7 +36,7 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-slate-200/60 bg-white/70 backdrop-blur-lg transition-colors duration-300 dark:border-slate-800/60 dark:bg-[#0b1120]/70" style={{ fontFamily: "'Prompt', sans-serif" }}>
+    <header className="fixed top-0 left-0 right-0 z-50 w-full border-b border-slate-200/60 bg-white/70 backdrop-blur-lg transition-colors duration-300 dark:border-slate-800/60 dark:bg-[#0b1120]/70" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
         
         {/* ฝั่งซ้าย: ปุ่มย้อนกลับ + โลโก้ */}

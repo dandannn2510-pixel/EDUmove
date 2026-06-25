@@ -10,12 +10,12 @@ const withPWA = withPWAInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 2 บรรทัดนี้แหละครับคือพระเอก! สั่งให้ปิดการตรวจคำผิดหยุมหยิมตอน Build
+  // ESLint ยังปิดไว้ระหว่าง build (แก้ lint rules ได้ทีหลัง)
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 };
 

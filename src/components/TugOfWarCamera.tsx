@@ -1,7 +1,8 @@
 'use client';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo, memo } from 'react';
 import Webcam from 'react-webcam';
-import { FilesetResolver, FaceLandmarker, HandLandmarker } from '@mediapipe/tasks-vision';
+import { FaceLandmarker, HandLandmarker } from '@mediapipe/tasks-vision';
+import { getHandLandmarker, getFaceLandmarker } from '@/utils/mediapipe';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, XCircle, Trophy, AlertTriangle, Swords, HelpCircle } from 'lucide-react';
 
@@ -9,6 +10,7 @@ export interface QuizData {
   q: string; choiceA: string; choiceB: string; choiceC: string; choiceD: string; ans: 'A' | 'B' | 'C' | 'D';
 }
 
+// ─── Audio ────────────────────────────────────────────────────────────────────
 const playSignalSound = () => {
   try {
     const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
@@ -28,6 +30,29 @@ const playSignalSound = () => {
   }
 };
 
+// ─── ChoiceBox lifted to top-level to avoid remounting ───────────────────────
+interface ChoiceBoxProps {
+  choice: string;
+  text: string;
+  colorClass: string;
+  borderClass: string;
+  isLocked: boolean;
+  isResult: boolean;
+  isAns: boolean;
+}
+
+const ChoiceBox = memo(function ChoiceBox({ choice, text, colorClass, borderClass, isLocked, isResult, isAns }: ChoiceBoxProps) {
+  return (
+    <div className={`w-full h-full flex flex-col items-center justify-center p-4 rounded-3xl border-4 text-center transition-all duration-300 ${isLocked ? `scale-110 shadow-[0_0_40px_rgba(255,255,255,0.8)] z-50 ${colorClass} border-white` : (isResult && !isAns ? 'opacity-30 grayscale bg-slate-900 border-slate-700' : `bg-slate-900/80 ${borderClass} text-white backdrop-blur-md`)}`}>
+      <div className="text-sm md:text-base font-black opacity-70 uppercase mb-2 bg-black/30 px-4 py-1 rounded-full">ข้อ {choice}</div>
+      <div className="text-lg md:text-3xl font-black leading-tight text-balance">{text}</div>
+    </div>
+  );
+});
+
+// ─── Component ────────────────────────────────────────────────────────────────
+type GameStatus = 'INTRO' | 'WAIT_TURN_BACK' | 'COUNTDOWN' | 'RANDOM_DELAY' | 'GO_SIGNAL' | 'ANSWERING' | 'RESULT' | 'SUMMARY';
+
 export default function TugOfWarCamera({ questions, onFinish }: { questions: QuizData[], onFinish: () => void, experimentName?: string }) {
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,15 +60,11 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
   const [faceAI, setFaceAI] = useState<FaceLandmarker | null>(null);
   const [handAI, setHandAI] = useState<HandLandmarker | null>(null);
 
-  type GameStatus = 'INTRO' | 'WAIT_TURN_BACK' | 'COUNTDOWN' | 'RANDOM_DELAY' | 'GO_SIGNAL' | 'ANSWERING' | 'RESULT' | 'SUMMARY';
   const [status, setStatus] = useState<GameStatus>('INTRO');
-  
   const [currentQ, setCurrentQ] = useState(0);
-  const [hp, setHp] = useState(50); // พลัง 50 คืออยู่ตรงกลาง
-  
+  const [hp, setHp] = useState(50);
   const [readyTime, setReadyTime] = useState(3);
   const [timeLeft, setTimeLeft] = useState(10);
-  
   const [fastestPlayer, setFastestPlayer] = useState<'LEFT' | 'RIGHT' | null>(null);
   const [lockedChoice, setLockedChoice] = useState<'A' | 'B' | 'C' | 'D' | 'TIMEOUT' | null>(null);
   
@@ -52,21 +73,23 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
 
   const qData = questions[currentQ];
 
+  // ─── Stable random values for background particles (useMemo prevents re-randomising) ─
+  const particles = useMemo(() =>
+    Array.from({ length: 20 }, () => ({
+      left: `${Math.random() * 100}%`,
+      dx: Math.random() * 200 - 100,
+      duration: Math.random() * 10 + 10,
+    })), []
+  );
+
+  // ─── Load shared AI models ───────────────────────────────────────────────
   useEffect(() => {
-    async function initAI() {
-      const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
-      const face = await FaceLandmarker.createFromOptions(vision, {
-        baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task", delegate: "GPU" },
-        runningMode: "VIDEO", numFaces: 2
-      });
-      const hand = await HandLandmarker.createFromOptions(vision, {
-        baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", delegate: "GPU" },
-        runningMode: "VIDEO", numHands: 2
-      });
-      setFaceAI(face);
-      setHandAI(hand);
-    }
-    initAI();
+    getFaceLandmarker(2)
+      .then(setFaceAI)
+      .catch((err) => console.error('Failed to load FaceLandmarker:', err));
+    getHandLandmarker(2, true)
+      .then(setHandAI)
+      .catch((err) => console.error('Failed to load HandLandmarker:', err));
   }, []);
 
   useEffect(() => {
@@ -94,6 +117,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
       }
     }
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, readyTime, timeLeft]);
 
   useEffect(() => {
@@ -173,31 +197,25 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
     };
     detect();
     return () => cancelAnimationFrame(animationId);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, faceAI, handAI, fastestPlayer]);
 
-  // ==========================================
-  // 🚀 ระบบฟิสิกส์หลอดพลังแบบสมจริง
-  // ==========================================
   const handleAnswer = (selected: 'A' | 'B' | 'C' | 'D' | 'TIMEOUT') => {
     setStatus('RESULT');
     const isCorrect = selected !== 'TIMEOUT' && selected === qData.ans;
 
-    // 1. รอให้เอฟเฟกต์ลูกไฟวิญญาณบินไปชนหลอด (1.2 วินาที)
     setTimeout(() => {
       let newHp = hp;
       if (isCorrect) {
-        // ให้ดาเมจครั้งละ 20%
         if (fastestPlayer === 'LEFT') newHp = Math.max(0, hp - 20); 
         if (fastestPlayer === 'RIGHT') newHp = Math.min(100, hp + 20); 
       }
-      setHp(newHp); // 2. อัปเดตหลอดพลังให้ดันไปอีกฝั่ง
+      setHp(newHp);
 
-      // 3. รอหลอดพลังขยับเสร็จ (1.5 วินาที) แล้วค่อยรีเซ็ตรอบใหม่
       setTimeout(() => {
         if (newHp <= 0 || newHp >= 100) {
           setStatus('SUMMARY');
         } else {
-          // 🔁 ระบบ Infinite Loop: วนคำถามไปเรื่อยๆ จนกว่าหลอดจะสุด
           setCurrentQ(prev => (prev + 1) % questions.length);
           setStatus('WAIT_TURN_BACK'); 
           setFastestPlayer(null);
@@ -208,7 +226,9 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
     }, isCorrect ? 1200 : 1000); 
   };
 
-  const QuestionBox = () => (
+  // ─── Inner sub-views (safe: these don't cause remounting since they're not components) ─
+
+  const QuestionBoxContent = () => (
     <div className="absolute inset-8 bg-slate-900/90 border-4 border-indigo-500 rounded-[3rem] shadow-[0_0_50px_rgba(99,102,241,0.4)] flex flex-col items-center justify-center p-10 backdrop-blur-md">
       <HelpCircle size={60} className="text-indigo-400 mb-6 drop-shadow-md" />
       <div className="text-indigo-300 font-black text-xl mb-4 tracking-widest uppercase">คำถามประลองปัญญา</div>
@@ -223,23 +243,20 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
     </div>
   );
 
-  const ChoiceBox = ({ choice, text, colorClass, borderClass }: any) => {
-    const isLocked = lockedChoice === choice;
-    const isAns = status === 'RESULT' && qData.ans === choice;
-    return (
-      <div className={`w-full h-full flex flex-col items-center justify-center p-4 rounded-3xl border-4 text-center transition-all duration-300 ${isLocked ? `scale-110 shadow-[0_0_40px_rgba(255,255,255,0.8)] z-50 ${colorClass} border-white` : (status === 'RESULT' && !isAns ? 'opacity-30 grayscale bg-slate-900 border-slate-700' : `bg-slate-900/80 ${borderClass} text-white backdrop-blur-md`)}`}>
-        <div className="text-sm md:text-base font-black opacity-70 uppercase mb-2 bg-black/30 px-4 py-1 rounded-full">ข้อ {choice}</div>
-        <div className="text-lg md:text-3xl font-black leading-tight text-balance">{text}</div>
-      </div>
-    );
-  };
-
-  const ChoiceGrid = () => (
+  const ChoiceGridContent = () => (
     <div className="absolute inset-8 grid grid-cols-2 grid-rows-2 gap-6">
-      <ChoiceBox choice="A" text={qData.choiceA} colorClass="bg-rose-500" borderClass="border-rose-400/50" />
-      <ChoiceBox choice="B" text={qData.choiceB} colorClass="bg-blue-500" borderClass="border-blue-400/50" />
-      <ChoiceBox choice="C" text={qData.choiceC} colorClass="bg-amber-500" borderClass="border-amber-400/50" />
-      <ChoiceBox choice="D" text={qData.choiceD} colorClass="bg-emerald-500" borderClass="border-emerald-400/50" />
+      {(['A', 'B', 'C', 'D'] as const).map((choice) => (
+        <ChoiceBox
+          key={choice}
+          choice={choice}
+          text={qData[`choice${choice}`]}
+          colorClass={choice === 'A' ? 'bg-rose-500' : choice === 'B' ? 'bg-blue-500' : choice === 'C' ? 'bg-amber-500' : 'bg-emerald-500'}
+          borderClass={choice === 'A' ? 'border-rose-400/50' : choice === 'B' ? 'border-blue-400/50' : choice === 'C' ? 'border-amber-400/50' : 'border-emerald-400/50'}
+          isLocked={lockedChoice === choice}
+          isResult={status === 'RESULT'}
+          isAns={qData.ans === choice}
+        />
+      ))}
     </div>
   );
 
@@ -247,8 +264,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
     const winnerTeam = hp <= 0 ? 'ทีมซ้าย (LEFT)' : 'ทีมขวา (RIGHT)';
     const winnerColor = hp <= 0 ? 'text-cyan-400' : 'text-rose-400';
     return (
-      <div className="w-full h-screen bg-[#F8FAFC] dark:bg-[#0F172A] flex flex-col items-center justify-center text-slate-900 dark:text-white" style={{ fontFamily: "'Prompt', sans-serif" }}>
-        <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
+      <div className="w-full h-screen bg-[#F8FAFC] dark:bg-[#0F172A] flex flex-col items-center justify-center text-slate-900 dark:text-white" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
         <motion.div animate={{ y: [-10, 10, -10] }} transition={{ repeat: Infinity, duration: 3 }}>
           <Trophy size={140} className="text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] mb-8" />
         </motion.div>
@@ -264,23 +280,22 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center overflow-hidden select-none" style={{ fontFamily: "'Prompt', sans-serif" }}>
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
+    <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center overflow-hidden select-none" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
       <Webcam ref={webcamRef} mirrored={true} className="absolute inset-0 w-full h-full object-cover opacity-60" videoConstraints={{ facingMode: "user" }} />
       <canvas ref={canvasRef} width={1280} height={720} className="absolute inset-0 w-full h-full pointer-events-none z-10" />
 
-      {/* 🌌 บรรยากาศอนุภาคลอยไปมาตลอดเกม */}
+      {/* 🌌 Background particles — stable random values via useMemo */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 opacity-40">
-        {[...Array(20)].map((_, i) => (
+        {particles.map((p, i) => (
           <motion.div key={i} className="absolute w-2 h-2 bg-white rounded-full blur-[1px]"
-            initial={{ left: `${Math.random() * 100}%`, bottom: '-10%' }}
-            animate={{ bottom: '110%', x: Math.random() * 200 - 100 }}
-            transition={{ duration: Math.random() * 10 + 10, repeat: Infinity, ease: "linear" }}
+            initial={{ left: p.left, bottom: '-10%' }}
+            animate={{ bottom: '110%', x: p.dx }}
+            transition={{ duration: p.duration, repeat: Infinity, ease: "linear" }}
           />
         ))}
       </div>
 
-      {/* ⚔️ หลอดพลังชักเย่อ เคลื่อนไหวสมูทด้วย Spring */}
+      {/* ⚔️ HP Bar */}
       <div className="absolute top-6 inset-x-12 z-50 bg-slate-900/90 border-4 border-slate-700/50 rounded-full h-12 overflow-hidden flex shadow-[0_10px_40px_rgba(0,0,0,0.5)] backdrop-blur-md">
         <motion.div animate={{ width: `${100 - hp}%` }} transition={{ type: "spring", bounce: 0.2, duration: 1.5 }} className="h-full bg-cyan-500 shadow-[0_0_20px_rgba(6,182,212,0.8)] relative flex items-center justify-start px-6">
           <span className="font-black text-white text-lg drop-shadow-md">ทีมซ้าย</span>
@@ -292,8 +307,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
 
       <AnimatePresence>
         {status === 'INTRO' && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md" style={{ fontFamily: "'Prompt', sans-serif" }}>
-            <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md">
             <div className="bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-6 sm:p-10 rounded-[2.5rem] shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000000] max-w-3xl w-full text-center flex flex-col items-center">
               <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
                 <Swords size={80} className="text-amber-500 mb-6" />
@@ -356,7 +370,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
           <div className="absolute top-0 bottom-0 left-1/2 w-1 bg-white/20 border-x border-white/5 z-40 shadow-[0_0_30px_rgba(255,255,255,0.2)]"></div>
 
           <div className="w-1/2 h-full relative">
-             {fastestPlayer === 'LEFT' ? <ChoiceGrid /> : <QuestionBox />}
+             {fastestPlayer === 'LEFT' ? <ChoiceGridContent /> : <QuestionBoxContent />}
              {status === 'ANSWERING' && fastestPlayer === 'LEFT' && (
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-cyan-500 text-white px-8 py-2 rounded-full font-black text-2xl shadow-[0_0_30px_rgba(6,182,212,0.8)] animate-pulse z-50 w-max">
                   ซ้ายได้สิทธิ์ตอบ! ({timeLeft} วิ)
@@ -365,7 +379,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
           </div>
 
           <div className="w-1/2 h-full relative">
-             {fastestPlayer === 'RIGHT' ? <ChoiceGrid /> : <QuestionBox />}
+             {fastestPlayer === 'RIGHT' ? <ChoiceGridContent /> : <QuestionBoxContent />}
              {status === 'ANSWERING' && fastestPlayer === 'RIGHT' && (
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-rose-500 text-white px-8 py-2 rounded-full font-black text-2xl shadow-[0_0_30px_rgba(244,63,94,0.8)] animate-pulse z-50 w-max">
                   ขวาได้สิทธิ์ตอบ! ({timeLeft} วิ)
@@ -386,13 +400,13 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
         </motion.div>
       )}
 
-      {/* ✨ อนิเมชั่นลูกไฟดูดพลังไหลไปเติมแถบ (แสดงเฉพาะตอนรอหลอดขยับ) ✨ */}
+      {/* ✨ Fireball animation on correct answer */}
       {status === 'RESULT' && lockedChoice === qData.ans && fastestPlayer && (
         <div className="absolute inset-0 pointer-events-none z-[60] overflow-hidden">
-          {[...Array(30)].map((_, i) => {
+          {Array.from({ length: 30 }, (_, i) => {
             const isLeft = fastestPlayer === 'LEFT';
             const startX = isLeft ? '25%' : '75%'; 
-            const targetX = isLeft ? '75%' : '25%'; // วิ่งไปกระแทกฝั่งตรงข้าม
+            const targetX = isLeft ? '75%' : '25%';
             return (
               <motion.div
                 key={i}

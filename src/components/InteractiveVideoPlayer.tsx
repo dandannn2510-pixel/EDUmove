@@ -1,8 +1,9 @@
 'use client';
 import { allQuestions } from '@/data/allQuestions';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import Webcam from 'react-webcam';
-import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
+import { HandLandmarker } from '@mediapipe/tasks-vision';
+import { getHandLandmarker } from '@/utils/mediapipe';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, XCircle, X, ChevronRight, Trophy, HelpCircle, Video, FastForward, Camera, Sparkles, Pause, Play, Maximize, Minimize, Hand } from 'lucide-react';
 
@@ -136,6 +137,12 @@ interface Props {
   title?: string;
 }
 
+// ─── YouTube Player type ──────────────────────────────────────────────────────
+interface YTPlayer {
+  destroy: () => void;
+}
+
+
 export function getInteractiveLessonData(grade: string, chapterId: string) {
   if (grade === 'p4' && chapterId === 'chapter3') {
     return CHAPTER3_P4_LESSON;
@@ -230,16 +237,12 @@ export default function InteractiveVideoPlayer({
   const currentSegment = lessonData.segments[currentSegmentIndex];
   const currentQData = currentSegment?.questions[currentQuestionIndex];
   const [score, setScore] = useState(0);
-  const [totalQuestionsCount, setTotalQuestionsCount] = useState(0);
 
-  // คำนวณจำนวนข้อทั้งหมด
-  useEffect(() => {
-    let count = 0;
-    lessonData.segments.forEach(seg => {
-      count += seg.questions.length;
-    });
-    setTotalQuestionsCount(count);
-  }, []);
+  // คำนวณจำนวนข้อทั้งหมดด้วย useMemo (ไม่ต้องใช้ useEffect + setState)
+  const totalQuestionsCount = useMemo(() =>
+    lessonData.segments.reduce((sum, seg) => sum + seg.questions.length, 0),
+    [lessonData.segments]
+  );
 
   // 1. โหลด YouTube Iframe Player API
   useEffect(() => {
@@ -271,10 +274,10 @@ export default function InteractiveVideoPlayer({
   useEffect(() => {
     if (!isApiLoaded || modalStage !== 'PLAYING_VIDEO' || !currentSegment) return;
 
-    let player: any = null;
+    let player: YTPlayer | null = null;
     const playerDivId = `yt-player-${currentSegmentIndex}`;
 
-    // ดีเลย์นิดหน่อยให้ Div มั่นใจว่าเรนเดอร์ใน DOM ล้ว
+    // ดีเลย์นิดหน่อยให้ Div มั่นใจว่าเรนเดอร์ใน DOM แล้ว
     const timer = setTimeout(() => {
       try {
         player = new (window as any).YT.Player(playerDivId, {
@@ -289,7 +292,7 @@ export default function InteractiveVideoPlayer({
             showinfo: 0
           },
           events: {
-            onStateChange: (event: any) => {
+            onStateChange: (event: { data: number }) => {
               // state 0 คือ ENDED
               if (event.data === 0) {
                 handleVideoEnd();
@@ -310,30 +313,14 @@ export default function InteractiveVideoPlayer({
         } catch (e) {}
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isApiLoaded, currentSegmentIndex, modalStage]);
 
-  // 3. โหลด Hand Landmarker สำหรับตรวจจับทิศทาง่ามือ
+  // 3. โหลด Hand Landmarker สำหรับตรวจจับทิศทางมือ
   useEffect(() => {
-    async function initAI() {
-      try {
-        const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm');
-        const landmarker = await HandLandmarker.createFromOptions(vision, {
-          baseOptions: {
-            modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task',
-            delegate: 'GPU'
-          },
-          runningMode: 'VIDEO',
-          numHands: 1,
-          minHandDetectionConfidence: 0.6,
-          minHandPresenceConfidence: 0.6,
-          minTrackingConfidence: 0.6
-        });
-        setHandLandmarker(landmarker);
-      } catch (err) {
-        console.error('Failed to initialize MediaPipe HandLandmarker:', err);
-      }
-    }
-    initAI();
+    getHandLandmarker(1)
+      .then(setHandLandmarker)
+      .catch((err) => console.error('Failed to initialize MediaPipe HandLandmarker:', err));
   }, []);
 
   // 3.1 ฟัง์ชันควบคุมหน้าจอเต็มจอ (Fullscreen)
@@ -538,25 +525,27 @@ export default function InteractiveVideoPlayer({
     }
   };
 
-  // นับถอยหลังเตรียมตัว 3 วินาที
+  // นับถอยหลังเตรียมตัว 3 วินาที (ใช้ setTimeout recursive แทน setInterval เพื่อความแม่นยำ)
   useEffect(() => {
     if (modalStage !== 'PREPARE_QUIZ') return;
+    let cancelled = false;
 
-    const timer = setInterval(() => {
-      setPrepareCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setModalStage('PLAYING_QUIZ');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    const tick = (remaining: number) => {
+      if (cancelled) return;
+      if (remaining <= 0) {
+        setModalStage('PLAYING_QUIZ');
+        return;
+      }
+      setPrepareCountdown(remaining);
+      setTimeout(() => tick(remaining - 1), 1000);
+    };
 
-    return () => clearInterval(timer);
+    tick(prepareCountdown);
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modalStage, currentSegmentIndex, currentQuestionIndex]);
 
-  // นับถอยหลัง 60 วินาทีสำหรับข้ามไปคลิปถัดไปในหน้าเฉลย
+  // นับถอยหลัง 60 วินาทีสำหรับข้ามไปคลิปถัดไปในหน้าเฉลย (ใช้ setTimeout recursive)
   useEffect(() => {
     if (modalStage !== 'SHOW_EXPLANATION') {
       setCountdown(60);
@@ -565,23 +554,25 @@ export default function InteractiveVideoPlayer({
     }
 
     if (!isTimerActive) return;
+    let cancelled = false;
 
-    const timer = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleNext();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+    const tick = (remaining: number) => {
+      if (cancelled || !isTimerActive) return;
+      if (remaining <= 0) {
+        handleNext();
+        return;
+      }
+      setCountdown(remaining);
+      setTimeout(() => tick(remaining - 1), 1000);
+    };
 
-    return () => clearInterval(timer);
+    tick(countdown);
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modalStage, currentSegmentIndex, currentQuestionIndex, isTimerActive]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12" style={{ fontFamily: "'Prompt', sans-serif" }}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
       {/* ม่านพื้นหลังดำโปร่งใส */}
       <div className="absolute inset-0 bg-slate-950/95 backdrop-blur-md cursor-default"></div>
 

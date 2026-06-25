@@ -16,11 +16,10 @@ export default function GuidePage() {
   return (
     <main 
       className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 py-16 px-4 sm:px-6 relative overflow-x-hidden pb-20 selection:bg-amber-200 selection:text-amber-900"
-      style={{ fontFamily: "'Prompt', sans-serif" }}
+      style={{ fontFamily: "var(--font-prompt), sans-serif" }}
     >
       {/* โหลดฟอนต์ Prompt เพื่อความคลีนและโมเดิร์น */}
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800;900&display=swap');` }} />
-
+      
       {/* ลายจุดสมุดโน้ตจางๆ */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
 

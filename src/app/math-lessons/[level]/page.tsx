@@ -61,8 +61,7 @@ export default function MathLessonsPage() {
   if (!data) return <div className="text-white text-center mt-20 text-3xl font-bold">404 - ไม่พบข้อมูลชั้นเรียนนี้</div>;
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] relative font-sans overflow-x-hidden pb-20 selection:bg-fuchsia-200 selection:text-fuchsia-900" style={{ fontFamily: "'Prompt', sans-serif" }}>
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
+    <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] relative font-sans overflow-x-hidden pb-20 selection:bg-fuchsia-200 selection:text-fuchsia-900" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
       <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">

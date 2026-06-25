@@ -61,12 +61,11 @@ export default function ScienceChapterPage() {
 
   return (
     <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] relative font-sans overflow-x-hidden pb-20 selection:bg-emerald-200 selection:text-emerald-900">
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
       
       {/* ลายจุดสมุดโน้ตจางๆ */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
 
-      <div style={{ fontFamily: "'Prompt', sans-serif" }} className="max-w-6xl mx-auto px-6 py-16 relative z-10 flex flex-col flex-grow w-full">
+      <div style={{ fontFamily: "var(--font-prompt), sans-serif" }} className="max-w-6xl mx-auto px-6 py-16 relative z-10 flex flex-col flex-grow w-full">
         
         <AnimatePresence mode="wait">
           

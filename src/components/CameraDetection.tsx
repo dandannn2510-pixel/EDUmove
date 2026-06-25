@@ -1,7 +1,8 @@
 'use client';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, memo } from 'react';
 import Webcam from 'react-webcam';
-import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
+import { getHandLandmarker } from '@/utils/mediapipe';
+import { HandLandmarker } from '@mediapipe/tasks-vision';
 import { useGameStore } from '@/store/gameStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Hand, FastForward, Lightbulb, Sparkles } from 'lucide-react';
@@ -9,6 +10,37 @@ import { Play, Hand, FastForward, Lightbulb, Sparkles } from 'lucide-react';
 export interface QuestionData {
   q: string; choiceA: string; choiceB: string; choiceC: string; choiceD: string; ans: 'A' | 'B' | 'C' | 'D';
 }
+
+// ─── ChoiceBox lifted out to prevent unmount/remount on parent re-render ──────
+interface ChoiceBoxProps {
+  choice: 'A' | 'B' | 'C' | 'D';
+  text: string;
+  lockedState: 'A' | 'B' | 'C' | 'D' | null;
+  positioning: string;
+  color: 'rose' | 'blue' | 'amber' | 'emerald';
+}
+
+const colorMap: Record<ChoiceBoxProps['color'], string> = {
+  rose:    'bg-rose-600 border-rose-400 shadow-[0_0_15px_rgba(225,29,72,0.4)]',
+  blue:    'bg-blue-600 border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.4)]',
+  amber:   'bg-amber-500 border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.4)]',
+  emerald: 'bg-emerald-600 border-emerald-400 shadow-[0_0_15px_rgba(5,150,105,0.4)]',
+};
+
+const ChoiceBox = memo(function ChoiceBox({ choice, text, lockedState, positioning, color }: ChoiceBoxProps) {
+  const isLocked = lockedState === choice;
+  const isFaded = lockedState !== null && lockedState !== choice;
+  return (
+    <div className={`absolute ${positioning} w-[23%] p-2 sm:p-4 rounded-xl sm:rounded-[2rem] border sm:border-4 text-center transition-all duration-300 z-20 overflow-hidden
+      ${isLocked ? colorMap[color] + ' scale-105 z-30 ring-2 ring-white text-white font-bold' : `bg-slate-900/90 border-slate-600 text-slate-100 ${isFaded ? 'opacity-10 scale-95 pointer-events-none' : 'opacity-100'}`}
+    `}>
+      <div className="text-[8px] sm:text-xs font-black opacity-60 uppercase">ข้อ {choice}</div>
+      <div className="text-[11px] sm:text-lg md:text-xl lg:text-2xl font-black leading-tight break-words line-clamp-2">{text}</div>
+    </div>
+  );
+});
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CameraDetection({ 
   questions, onFinish, onSkip, onViewAnswers, experimentName 
@@ -34,16 +66,11 @@ export default function CameraDetection({
 
   const currentQ = questions[currentIndex];
 
+  // ─── Load shared HandLandmarker ──────────────────────────────────────────
   useEffect(() => {
-    async function initAI() {
-      const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
-      const landmarker = await HandLandmarker.createFromOptions(vision, {
-        baseOptions: { modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", delegate: "GPU" },
-        runningMode: "VIDEO", numHands: 4
-      });
-      setHandLandmarker(landmarker);
-    }
-    initAI();
+    getHandLandmarker(4)
+      .then(setHandLandmarker)
+      .catch((err) => console.error('Failed to load HandLandmarker:', err));
   }, []);
 
   useEffect(() => {
@@ -70,6 +97,7 @@ export default function CameraDetection({
       }
     }
     return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, readyTime, timeLeft]);
 
   useEffect(() => {
@@ -168,29 +196,9 @@ export default function CameraDetection({
     }, 2000);
   };
 
-  const ChoiceBox = ({ choice, text, lockedState, positioning, color }: { choice: 'A'|'B'|'C'|'D', text: string, lockedState: 'A'|'B'|'C'|'D'|null, positioning: string, color: string }) => {
-    const isLocked = lockedState === choice;
-    const isFaded = lockedState !== null && lockedState !== choice;
-    const getColorClass = () => {
-      if (color === 'rose') return 'bg-rose-600 border-rose-400 shadow-[0_0_15px_rgba(225,29,72,0.4)]';
-      if (color === 'blue') return 'bg-blue-600 border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.4)]';
-      if (color === 'amber') return 'bg-amber-500 border-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.4)]';
-      return 'bg-emerald-600 border-emerald-400 shadow-[0_0_15px_rgba(5,150,105,0.4)]';
-    };
-    return (
-      <div className={`absolute ${positioning} w-[23%] p-2 sm:p-4 rounded-xl sm:rounded-[2rem] border sm:border-4 text-center transition-all duration-300 z-20 overflow-hidden
-        ${isLocked ? getColorClass() + ' scale-105 z-30 ring-2 ring-white text-white font-bold' : `bg-slate-900/90 border-slate-600 text-slate-100 ${isFaded ? 'opacity-10 scale-95 pointer-events-none' : 'opacity-100'}`}
-      `}>
-        <div className="text-[8px] sm:text-xs font-black opacity-60 uppercase">ข้อ {choice}</div>
-        <div className="text-[11px] sm:text-lg md:text-xl lg:text-2xl font-black leading-tight break-words line-clamp-2">{text}</div>
-      </div>
-    );
-  };
-
   if (status === 'INTRO') {
     return (
-      <div className="w-full h-full min-h-[85vh] flex items-center justify-center relative p-4 select-none" style={{ fontFamily: "'Prompt', sans-serif" }}>
-        <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
+      <div className="w-full h-full min-h-[85vh] flex items-center justify-center relative p-4 select-none" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
         <div className="w-full max-w-3xl bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-6 sm:p-12 rounded-[2.5rem] shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000000] flex flex-col items-center text-center">
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 dark:text-white mb-2">เตรียมพร้อมเข้าสู่ Pre-test</h1>
           <div className="bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-black px-4 py-1.5 rounded-full border-2 border-slate-900 mb-6 text-xs sm:text-sm">โหมด 4 ตัวเลือก (A, B, C, D)</div>
@@ -211,14 +219,11 @@ export default function CameraDetection({
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center overflow-hidden select-none" style={{ fontFamily: "'Prompt', sans-serif" }}>
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
-      
+    <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center overflow-hidden select-none" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
       <Webcam ref={webcamRef} mirrored={true} className="absolute inset-0 w-full h-full object-cover opacity-85" videoConstraints={{ facingMode: "user" }} />
       <canvas ref={canvasRef} width={1280} height={720} className="absolute inset-0 w-full h-full pointer-events-none z-10" />
       <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-1 bg-white/50 shadow-[0_0_10px_rgba(255,255,255,0.5)] z-20 pointer-events-none"></div>
 
-      {/* --- ป้ายโชว์ชื่อการทดลอง 3 วิแรกก่อนเริ่มข้อแรก --- */}
       <AnimatePresence>
         {status === 'SHOW_TITLE' && (
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.2 }} className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/90 backdrop-blur-md">
@@ -231,11 +236,9 @@ export default function CameraDetection({
         )}
       </AnimatePresence>
 
-      {/* ป้ายแสดงชื่อทีม */}
       <div className="absolute top-4 left-4 z-30 bg-purple-600/90 px-4 py-1.5 rounded-xl border border-purple-400 text-white text-xs sm:text-lg font-black shadow-md">ทีม A (ซ้าย)</div>
       <div className="absolute top-4 right-4 z-30 bg-green-600/90 px-4 py-1.5 rounded-xl border border-green-400 text-white text-xs sm:text-lg font-black shadow-md">ทีม B (ขวา)</div>
 
-      {/* --- 💥 หน้าจอเตะตา! โชว์โจทย์ใหญ่ยักษ์ + นับ 3-2-1 --- */}
       <AnimatePresence>
         {status === 'READY' && (
           <motion.div 
@@ -247,11 +250,9 @@ export default function CameraDetection({
             <motion.div initial={{ y: -50 }} animate={{ y: 0 }} className="bg-indigo-600 text-white px-6 py-2 rounded-full font-black text-xl sm:text-3xl mb-6 shadow-[0_0_20px_rgba(79,70,229,0.6)]">
                โจทย์ข้อที่ {currentIndex + 1}
             </motion.div>
-            
             <h1 className="text-3xl sm:text-5xl md:text-6xl text-white font-black leading-tight drop-shadow-[0_0_30px_rgba(0,0,0,0.8)] max-w-4xl mb-12">
               {currentQ.q}
             </h1>
-
             <motion.div 
               key={readyTime} 
               initial={{ scale: 0.5, opacity: 0 }} 
@@ -265,7 +266,6 @@ export default function CameraDetection({
         )}
       </AnimatePresence>
 
-      {/* --- บาร์โจทย์คำถามแบบปกติ (โผล่มาเฉพาะตอนเริ่มจับเวลา 10 วิ) --- */}
       <AnimatePresence>
         {(status === 'PLAYING' || status === 'RESULT') && (
           <motion.div initial={{ y: -100, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -100, opacity: 0 }} className="absolute inset-x-0 top-16 sm:top-6 flex flex-col items-center z-30 px-4 pointer-events-none">
@@ -279,7 +279,6 @@ export default function CameraDetection({
         )}
       </AnimatePresence>
 
-      {/* --- ตัวเลือก A, B, C, D (ให้โชว์ตั้งแต่ตอน READY เพื่อให้เด็กแอบอ่านล่วงหน้าได้) --- */}
       {(status === 'READY' || status === 'PLAYING') && (
         <>
           <ChoiceBox choice="A" text={currentQ.choiceA} lockedState={lockedA} color="rose" positioning="top-[25%] left-[2%]" />
@@ -294,7 +293,6 @@ export default function CameraDetection({
         </>
       )}
 
-      {/* --- แผงแสดงผลลัพธ์ ถูก/ผิด --- */}
       <AnimatePresence>
         {status === 'RESULT' && (
           <div className="absolute inset-0 z-40 flex pointer-events-none">

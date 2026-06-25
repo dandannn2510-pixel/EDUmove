@@ -265,8 +265,7 @@ export default function OnetFinalBossRaidPage() {
   if (!qData) return null; // Safety render
 
   return (
-    <div className="fixed inset-0 bg-[#020617] text-white overflow-hidden select-none flex flex-col items-center justify-center" style={{ fontFamily: "'Prompt', sans-serif" }}>
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
+    <div className="fixed inset-0 bg-[#020617] text-white overflow-hidden select-none flex flex-col items-center justify-center" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
       
       {/* 🌌 อัปเกรดฉากหลังให้เป็นอวกาศที่สวยงาม */}
       <div className="absolute inset-0 pointer-events-none z-0">

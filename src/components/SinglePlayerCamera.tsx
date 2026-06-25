@@ -1,7 +1,8 @@
 'use client';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import Webcam from 'react-webcam';
-import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision';
+import { HandLandmarker } from '@mediapipe/tasks-vision';
+import { getHandLandmarker } from '@/utils/mediapipe';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { CheckCircle2, XCircle, FileText, Home, RotateCcw, Clock, Trophy } from 'lucide-react';
 
@@ -33,7 +34,10 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
   const holdFramesRef = useRef({ LEFT: 0, RIGHT: 0 });
   const isProcessingRef = useRef(false);
 
-  const qData = questions[currentQ] || questions[0];
+  // Use ref to always have the latest qData in callbacks without stale closure
+  const qDataRef = useRef(questions[currentQ] || questions[0]);
+  qDataRef.current = questions[currentQ] || questions[0];
+  const qData = qDataRef.current;
 
   const headX = useMotionValue(0);
   const headY = useMotionValue(0);
@@ -41,24 +45,33 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
   const smoothX = useSpring(headX, { stiffness: 800, damping: 25, mass: 0.5 });
   const smoothY = useSpring(headY, { stiffness: 800, damping: 25, mass: 0.5 });
 
+  // ─── Load shared HandLandmarker ──────────────────────────────────────────
   useEffect(() => {
-    async function initAI() {
-      const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
-      const landmarker = await HandLandmarker.createFromOptions(vision, {
-        baseOptions: { 
-          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task", 
-          delegate: "GPU" 
-        },
-        runningMode: "VIDEO",
-        numHands: 1,
-        minHandDetectionConfidence: 0.6,
-        minHandPresenceConfidence: 0.6,
-        minTrackingConfidence: 0.6
-      });
-      setHandLandmarker(landmarker);
-    }
-    initAI();
+    getHandLandmarker(1)
+      .then(setHandLandmarker)
+      .catch((err) => console.error('Failed to load HandLandmarker:', err));
   }, []);
+
+  // ─── handleAnswer uses useCallback + ref to avoid stale closure ──────────
+  const handleAnswer = useCallback((selected: 'LEFT' | 'RIGHT' | 'TIMEOUT') => {
+    setStatus('RESULT');
+    const isCorrect = selected === qDataRef.current.ans;
+    if (isCorrect) setScore(prev => prev + 1);
+
+    setTimeout(() => {
+      setCurrentQ(prev => {
+        const nextQ = prev + 1;
+        if (nextQ < questions.length) {
+          setStatus('READY');
+          setReadyTime(3);
+          return nextQ;
+        } else {
+          setStatus('SUMMARY');
+          return prev;
+        }
+      });
+    }, 2500);
+  }, [questions.length]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -82,12 +95,24 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
       }
     }
     return () => clearTimeout(timer);
-  }, [status, readyTime, timeLeft]);
+  }, [status, readyTime, timeLeft, handleAnswer]);
 
   useEffect(() => {
     if (status !== 'PLAYING' || !handLandmarker) return;
     let animationFrameId: number;
     const HOLD_THRESHOLD = 20;
+
+    const drawProgress = (ctx: CanvasRenderingContext2D, x: number, y: number, progress: number, color: string) => {
+      ctx.beginPath();
+      ctx.arc(x, y, 35, -Math.PI/2, (-Math.PI/2) + (2 * Math.PI * Math.min(1, progress)));
+      ctx.strokeStyle = color; ctx.lineWidth = 10;
+      ctx.lineCap = 'round'; ctx.stroke();
+    };
+
+    const triggerAnswer = (zone: 'LEFT' | 'RIGHT') => {
+      isProcessingRef.current = true;
+      setLockedChoice(zone); handleAnswer(zone);
+    };
 
     const detect = () => {
       if (webcamRef.current && webcamRef.current.video && webcamRef.current.video.readyState === 4 && !isProcessingRef.current) {
@@ -150,42 +175,13 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
       animationFrameId = requestAnimationFrame(detect);
     };
 
-    const drawProgress = (ctx: CanvasRenderingContext2D, x: number, y: number, progress: number, color: string) => {
-      ctx.beginPath();
-      ctx.arc(x, y, 35, -Math.PI/2, (-Math.PI/2) + (2 * Math.PI * Math.min(1, progress)));
-      ctx.strokeStyle = color; ctx.lineWidth = 10;
-      ctx.lineCap = 'round'; ctx.stroke();
-    };
-
-    const triggerAnswer = (zone: 'LEFT' | 'RIGHT') => {
-      isProcessingRef.current = true;
-      setLockedChoice(zone); handleAnswer(zone);
-    };
-
     detect();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [handLandmarker, status]);
-
-  const handleAnswer = (selected: 'LEFT' | 'RIGHT' | 'TIMEOUT') => {
-    setStatus('RESULT');
-    const isCorrect = selected === qData.ans;
-    if (isCorrect) setScore(prev => prev + 1);
-
-    setTimeout(() => {
-      if (currentQ + 1 < questions.length) {
-        setCurrentQ(prev => prev + 1);
-        setStatus('READY'); setReadyTime(3);
-      } else {
-        setStatus('SUMMARY'); 
-      }
-    }, 2500);
-  };
+  }, [handLandmarker, status, headX, headY, handleAnswer]);
 
   const restartGame = () => {
     setCurrentQ(0); setScore(0); setStatus('SHOW_TITLE');
   };
-
-  const fontStyle = { fontFamily: "'Prompt', sans-serif" };
 
   if (status === 'SUMMARY') {
     const percentage = Math.round((score / questions.length) * 100);
@@ -201,8 +197,7 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
     }
 
     return (
-      <div className="w-full h-screen flex flex-col items-center justify-center bg-[#F8FAFC] dark:bg-[#0F172A] relative overflow-hidden" style={{ fontFamily: "'Prompt', sans-serif" }}>
-        <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
+      <div className="w-full h-screen flex flex-col items-center justify-center bg-[#F8FAFC] dark:bg-[#0F172A] relative overflow-hidden" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
         <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
 
         <motion.div initial={{ scale: 0.9, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} className="bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-10 md:p-14 rounded-[2.5rem] shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000000] max-w-2xl w-full text-center relative z-10">
@@ -234,12 +229,10 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center overflow-hidden select-none" style={fontStyle}>
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
+    <div className="fixed inset-0 z-50 bg-slate-900 flex flex-col items-center justify-center overflow-hidden select-none" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
       <Webcam ref={webcamRef} mirrored={true} className="absolute inset-0 w-full h-full object-cover opacity-80" videoConstraints={{ facingMode: "user" }} />
       <canvas ref={canvasRef} width={1280} height={720} className="absolute inset-0 w-full h-full pointer-events-none z-10" />
 
-      {/* 🚀 อัปเดตข้อความต้อนรับเป็น "คำถามท้าทาย" พร้อมเปลี่ยนไอคอนเป็นถ้วยรางวัล Trophy */}
       <AnimatePresence>
         {status === 'SHOW_TITLE' && (
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 1.2 }} className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-xl">

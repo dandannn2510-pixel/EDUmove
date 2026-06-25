@@ -9,13 +9,12 @@ import {
 export default function Grade4Math() {
   return (
     <main className="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#0b1120] dark:text-white relative font-sans selection:bg-fuchsia-200 selection:text-fuchsia-900 dark:selection:bg-fuchsia-500/30 dark:selection:text-white overflow-hidden transition-colors duration-300">
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800;900&display=swap');` }} />
-      
+            
       {/* 💡 Ambient Background */}
       <div className="absolute inset-0 z-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_0%,#000_70%,transparent_100%)]"></div>
       <div className="absolute top-0 left-1/4 w-[800px] h-[600px] bg-fuchsia-500/5 dark:bg-fuchsia-500/10 rounded-full blur-[120px] pointer-events-none z-0 transition-colors duration-300"></div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16" style={{ fontFamily: "'Prompt', sans-serif" }}>
+      <div className="relative z-10 max-w-7xl mx-auto px-6 py-16" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
         
 
         <header className="mb-16 text-center md:text-left">

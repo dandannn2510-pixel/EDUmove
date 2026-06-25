@@ -1,12 +1,21 @@
 {
-  "name": "SciLab Classroom",
-  "short_name": "SciLab",
-  "description": "แอปพลิเคชันเกมโชว์วิทยาศาสตร์ด้วยกล้อง AI",
+  "name": "EDUmove - วิทยาศาสตร์ & คณิตศาสตร์",
+  "short_name": "EDUmove",
+  "description": "แพลตฟอร์มการเรียนรู้วิทยาศาสตร์และคณิตศาสตร์ ป.4-6 ด้วยระบบ AI กล้อง",
   "start_url": "/",
   "display": "standalone",
+  "orientation": "landscape",
   "background_color": "#0f172a",
   "theme_color": "#4f46e5",
+  "lang": "th",
+  "categories": ["education"],
   "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
     {
       "src": "/icon.png",
       "sizes": "512x512",

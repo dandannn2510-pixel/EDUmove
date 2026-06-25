@@ -73,7 +73,7 @@ export default function ScienceDynamicQuizPage() {
 
   if (!questions || questions.length === 0) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] flex flex-col items-center justify-center p-6 text-center" style={{ fontFamily: "'Prompt', sans-serif" }}>
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] flex flex-col items-center justify-center p-6 text-center" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
         <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
         <div className="relative z-10 bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-10 rounded-[2.5rem] shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000000] max-w-md w-full flex flex-col items-center">
           <FlaskConical size={80} className="text-emerald-500 mb-6 animate-pulse" />
@@ -113,7 +113,7 @@ export default function ScienceDynamicQuizPage() {
 
   if (showAnswers) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-900 dark:text-white p-6 md:p-12 overflow-y-auto relative" style={{ fontFamily: "'Prompt', sans-serif" }}>
+      <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-900 dark:text-white p-6 md:p-12 overflow-y-auto relative" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
         <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
         <div className="max-w-4xl mx-auto pb-20 relative z-10">
           <div className="flex items-center justify-between mb-10">
@@ -199,8 +199,7 @@ export default function ScienceDynamicQuizPage() {
   }
 
   return (
-    <div className="w-full h-screen bg-[#F8FAFC] dark:bg-[#0F172A] overflow-hidden relative" style={{ fontFamily: "'Prompt', sans-serif" }}>
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700;800;900&display=swap');` }} />
+    <div className="w-full h-screen bg-[#F8FAFC] dark:bg-[#0F172A] overflow-hidden relative" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
       <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
 
       {/* 🟢 1. หน้ากติกาการเล่น */}

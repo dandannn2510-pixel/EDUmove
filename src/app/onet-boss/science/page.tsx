@@ -138,9 +138,8 @@ export default function ScienceOnetBoss() {
   const progressPercent = Math.min(Math.max(completedStages.length, 0) / (maxStages - 1) * 100, 100);
 
   return (
-    <main className="min-h-screen relative font-sans overflow-hidden bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 select-none" style={{ fontFamily: "'Prompt', sans-serif" }}>
+    <main className="min-h-screen relative font-sans overflow-hidden bg-[#F8FAFC] dark:bg-[#0F172A] text-slate-900 dark:text-slate-100 select-none" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
       <style dangerouslySetInnerHTML={{ __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');
         .hide-scroll::-webkit-scrollbar { display: none; }
         
         .bg-dotted {

@@ -9,12 +9,11 @@ export default function GradeSelectPage({ params }: { params: { level: string } 
 
   return (
     <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] py-16 px-6 relative font-sans overflow-x-hidden pb-20">
-      <style dangerouslySetInnerHTML={{ __html: `@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap');` }} />
       
       {/* ลายจุดสมุดโน้ตจางๆ */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
 
-      <div className="max-w-5xl mx-auto relative z-10" style={{ fontFamily: "'Prompt', sans-serif" }}>
+      <div className="max-w-5xl mx-auto relative z-10" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
         
 
         {/* ส่วนหัว */}
