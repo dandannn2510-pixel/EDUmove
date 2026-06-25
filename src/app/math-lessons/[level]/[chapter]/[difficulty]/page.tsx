@@ -500,38 +500,42 @@ export default function MathDynamicQuizPage() {
               {/* Dotted pattern inside card */}
               <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:24px_24px] opacity-40 pointer-events-none rounded-[2.5rem]" />
               
-              <div className="text-center p-6 sm:p-8 border-b-4 border-slate-900 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm relative z-10">
-                <div className="w-20 h-20 bg-amber-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center mx-auto mb-4 border-4 border-slate-900 shadow-sm relative z-10">
-                  {icon}
-                </div>
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-2 relative z-10">{ruleTitle}</h2>
-                <div className="inline-block bg-emerald-100 dark:bg-emerald-950/50 px-4 py-1.5 rounded-full border-2 border-slate-900 relative z-10">
-                  <p className="text-emerald-700 dark:text-emerald-400 font-black text-sm">📝 แบบทดสอบจำนวน {questions.length} ข้อ</p>
+              <div className="p-4 sm:p-6 border-b-4 border-slate-900 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm relative z-10">
+                <div className="flex flex-row items-center gap-4 relative z-10">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-amber-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center border-4 border-slate-900 shadow-sm shrink-0">
+                    {icon}
+                  </div>
+                  <div className="text-left">
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white leading-tight">{ruleTitle}</h2>
+                    <div className="mt-1 bg-emerald-100 dark:bg-emerald-950/50 px-3 py-0.5 sm:py-1 rounded-full border-2 border-slate-900 inline-block">
+                      <p className="text-emerald-700 dark:text-emerald-400 font-black text-xs">📝 แบบทดสอบจำนวน {questions.length} ข้อ</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 bg-transparent relative z-10">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+              <div className="p-4 sm:p-6 overflow-y-auto md:overflow-y-hidden custom-scrollbar flex-1 bg-transparent relative z-10 flex flex-col justify-center">
+                <div className={`grid grid-cols-1 ${instructionsList.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2 md:grid-cols-4'} gap-4 relative z-10`}>
                   {instructionsList.map((step, idx) => (
-                    <div key={idx} className="bg-slate-50/90 dark:bg-slate-700/90 backdrop-blur-sm border-4 border-slate-900 p-5 rounded-2xl flex gap-4 items-start shadow-sm relative z-10">
-                      <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded-xl shrink-0 border-2 border-slate-900 relative z-10">
+                    <div key={idx} className="bg-slate-50/90 dark:bg-slate-700/90 backdrop-blur-sm border-4 border-slate-900 p-4 rounded-2xl flex flex-col gap-3 items-center text-center shadow-sm relative z-10 h-full justify-start">
+                      <div className="bg-slate-100 dark:bg-slate-800 p-2.5 rounded-xl shrink-0 border-2 border-slate-900 relative z-10">
                         {step.icon}
                       </div>
-                      <div className="relative z-10">
-                        <h4 className="text-slate-900 dark:text-white font-black text-lg mb-1">{step.title}</h4>
-                        <p className="text-slate-600 dark:text-slate-400 text-sm font-bold leading-relaxed">{step.desc}</p>
+                      <div className="relative z-10 flex-1 flex flex-col justify-center">
+                        <h4 className="text-slate-900 dark:text-white font-black text-base mb-1">{step.title}</h4>
+                        <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm font-bold leading-relaxed">{step.desc}</p>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="p-6 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm border-t-4 border-slate-900 flex flex-col sm:flex-row gap-4 relative z-10">
-                <button onClick={() => router.back()} className="sm:w-1/3 py-4 rounded-xl font-black text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border-2 border-transparent relative z-10">
+              <div className="p-4 sm:p-5 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm border-t-4 border-slate-900 flex flex-col sm:flex-row gap-3 relative z-10">
+                <button onClick={() => router.back()} className="sm:w-1/3 py-3 rounded-xl font-black text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border-2 border-transparent relative z-10">
                   ย้อนกลับ
                 </button>
-                <button onClick={() => setGameState('PLAYING')} className="sm:w-2/3 bg-amber-300 hover:bg-amber-400 text-slate-900 border-4 border-slate-900 py-4 rounded-xl font-black text-xl shadow-[4px_4px_0_0_#0F172A] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 relative z-10">
-                  <PlayCircle size={24} /> เริ่มเล่นเกมแข่งกันเลย!
+                <button onClick={() => setGameState('PLAYING')} className="sm:w-2/3 bg-amber-300 hover:bg-amber-400 text-slate-900 border-4 border-slate-900 py-3 rounded-xl font-black text-lg shadow-[4px_4px_0_0_#0F172A] active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2 relative z-10">
+                  <PlayCircle size={20} /> เริ่มเล่นเกมแข่งกันเลย!
                 </button>
               </div>
 

@@ -45,7 +45,7 @@ const ChoiceBox = memo(function ChoiceBox({ choice, text, lockedState, positioni
 export default function CameraDetection({ 
   questions, onFinish, onSkip, onViewAnswers, experimentName 
 }: { 
-  questions: QuestionData[], onFinish: () => void, onSkip?: () => void, onViewAnswers?: () => void, experimentName?: string 
+  questions: QuestionData[], onFinish: (leftScore?: number, rightScore?: number) => void, onSkip?: () => void, onViewAnswers?: () => void, experimentName?: string 
 }) {
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -66,8 +66,9 @@ export default function CameraDetection({
 
   const currentQ = questions[currentIndex];
 
-  // ─── Load shared HandLandmarker ──────────────────────────────────────────
+  // ─── Load shared HandLandmarker & Reset Score ────────────────────────────
   useEffect(() => {
+    useGameStore.getState().resetGame();
     getHandLandmarker(4)
       .then(setHandLandmarker)
       .catch((err) => console.error('Failed to load HandLandmarker:', err));
@@ -191,7 +192,8 @@ export default function CameraDetection({
         setReadyTime(3); 
         setStatus('READY'); 
       } else { 
-        onFinish(); 
+        const latestState = useGameStore.getState();
+        onFinish(latestState.leftScore, latestState.rightScore); 
       }
     }, 2000);
   };

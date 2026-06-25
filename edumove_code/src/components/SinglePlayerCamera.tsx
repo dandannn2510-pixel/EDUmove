@@ -14,7 +14,7 @@ export interface SingleQuestionData {
 
 interface Props {
   questions: SingleQuestionData[];
-  onExit: () => void;
+  onExit: (score?: number) => void;
   experimentName?: string;
 }
 
@@ -225,7 +225,7 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
             <button onClick={restartGame} className="flex-1 px-8 py-4 rounded-full font-black text-xl text-slate-900 bg-amber-400 hover:bg-amber-300 flex items-center justify-center gap-2 transition-all shadow-[0_10px_20px_rgba(251,191,36,0.4)] hover:scale-105 active:scale-95">
               <RotateCcw size={24} /> ทำแบบทดสอบอีกครั้ง
             </button>
-            <button onClick={onExit} className="flex-1 px-8 py-4 rounded-full font-bold text-lg text-white bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 flex items-center justify-center gap-2 transition-all hover:scale-105">
+            <button onClick={() => onExit && onExit(score)} className="flex-1 px-8 py-4 rounded-full font-bold text-lg text-white bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 flex items-center justify-center gap-2 transition-all hover:scale-105">
               <Home size={24} /> กลับสู่หน้าหลัก
             </button>
           </div>

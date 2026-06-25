@@ -31,9 +31,11 @@ function getVision() {
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
+let currentMaxHands = 0;
+
 /**
  * Returns a shared HandLandmarker instance (VIDEO mode).
- * Safe to call from multiple components — loads only once.
+ * Safe to call from multiple components — loads only once unless a higher numHands is needed.
  *
  * @param numHands - How many hands to detect (default: 1)
  * @param forceNew - Set true to bypass the singleton (e.g., need different numHands)
@@ -42,7 +44,8 @@ export function getHandLandmarker(
   numHands: number = 1,
   forceNew: boolean = false
 ): Promise<HandLandmarker> {
-  if (!handLandmarkerPromise || forceNew) {
+  if (!handLandmarkerPromise || forceNew || numHands > currentMaxHands) {
+    currentMaxHands = Math.max(currentMaxHands, numHands);
     handLandmarkerPromise = getVision().then((vision) =>
       HandLandmarker.createFromOptions(vision, {
         baseOptions: {
@@ -50,7 +53,7 @@ export function getHandLandmarker(
           delegate: 'GPU',
         },
         runningMode: 'VIDEO',
-        numHands,
+        numHands: currentMaxHands,
         minHandDetectionConfidence: 0.6,
         minHandPresenceConfidence: 0.6,
         minTrackingConfidence: 0.6,

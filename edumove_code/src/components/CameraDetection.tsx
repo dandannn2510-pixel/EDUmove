@@ -13,7 +13,7 @@ export interface QuestionData {
 export default function CameraDetection({ 
   questions, onFinish, onSkip, onViewAnswers, experimentName 
 }: { 
-  questions: QuestionData[], onFinish: () => void, onSkip?: () => void, onViewAnswers?: () => void, experimentName?: string 
+  questions: QuestionData[], onFinish: (leftScore?: number, rightScore?: number) => void, onSkip?: () => void, onViewAnswers?: () => void, experimentName?: string 
 }) {
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -35,6 +35,7 @@ export default function CameraDetection({
   const currentQ = questions[currentIndex];
 
   useEffect(() => {
+    useGameStore.getState().resetGame();
     async function initAI() {
       const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
       const landmarker = await HandLandmarker.createFromOptions(vision, {
@@ -163,7 +164,8 @@ export default function CameraDetection({
         setReadyTime(3); 
         setStatus('READY'); 
       } else { 
-        onFinish(); 
+        const latestState = useGameStore.getState();
+        onFinish(latestState.leftScore, latestState.rightScore); 
       }
     }, 2000);
   };

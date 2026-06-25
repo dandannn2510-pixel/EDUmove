@@ -17,8 +17,8 @@ const playSignalSound = () => {
     const gain = ctx.createGain();
     osc.connect(gain);
     gain.connect(ctx.destination);
-    osc.type = 'square'; 
-    osc.frequency.setValueAtTime(600, ctx.currentTime); 
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(600, ctx.currentTime);
     gain.gain.setValueAtTime(1, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
     osc.start(ctx.currentTime);
@@ -31,22 +31,22 @@ const playSignalSound = () => {
 export default function TugOfWarCamera({ questions, onFinish, experimentName }: { questions: QuizData[], onFinish: () => void, experimentName?: string }) {
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+
   const [faceAI, setFaceAI] = useState<FaceLandmarker | null>(null);
   const [handAI, setHandAI] = useState<HandLandmarker | null>(null);
 
   type GameStatus = 'INTRO' | 'WAIT_TURN_BACK' | 'COUNTDOWN' | 'RANDOM_DELAY' | 'GO_SIGNAL' | 'ANSWERING' | 'RESULT' | 'SUMMARY';
   const [status, setStatus] = useState<GameStatus>('INTRO');
-  
+
   const [currentQ, setCurrentQ] = useState(0);
   const [hp, setHp] = useState(50); // พลัง 50 คืออยู่ตรงกลาง
-  
+
   const [readyTime, setReadyTime] = useState(3);
   const [timeLeft, setTimeLeft] = useState(10);
-  
+
   const [fastestPlayer, setFastestPlayer] = useState<'LEFT' | 'RIGHT' | null>(null);
   const [lockedChoice, setLockedChoice] = useState<'A' | 'B' | 'C' | 'D' | 'TIMEOUT' | null>(null);
-  
+
   const holdFramesRef = useRef({ A: 0, B: 0, C: 0, D: 0 });
   const isProcessingRef = useRef(false);
 
@@ -73,19 +73,19 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
     let timer: NodeJS.Timeout;
     if (status === 'WAIT_TURN_BACK') {
       timer = setTimeout(() => { setStatus('COUNTDOWN'); setReadyTime(3); }, 4000);
-    } 
+    }
     else if (status === 'COUNTDOWN') {
       if (readyTime > 0) {
         timer = setTimeout(() => setReadyTime(prev => prev - 1), 1000);
       } else {
         setStatus('RANDOM_DELAY');
-        const delay = Math.floor(Math.random() * 2000) + 1000; 
+        const delay = Math.floor(Math.random() * 2000) + 1000;
         setTimeout(() => {
           setStatus('GO_SIGNAL');
           playSignalSound();
         }, delay);
       }
-    } 
+    }
     else if (status === 'ANSWERING') {
       if (timeLeft > 0) {
         timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
@@ -106,14 +106,14 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
         const video = webcamRef.current.video;
         const canvas = canvasRef.current;
         const ctx = canvas?.getContext('2d');
-        
+
         if (canvas && ctx) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
 
           if (status === 'GO_SIGNAL') {
             const faceResult = faceAI.detectForVideo(video, performance.now());
             if (faceResult.faceLandmarks && faceResult.faceLandmarks.length > 0) {
-              const noseX = 1 - faceResult.faceLandmarks[0][1].x; 
+              const noseX = 1 - faceResult.faceLandmarks[0][1].x;
               if (noseX < 0.5) setFastestPlayer('LEFT');
               else setFastestPlayer('RIGHT');
               setStatus('ANSWERING'); setTimeLeft(10); holdFramesRef.current = { A: 0, B: 0, C: 0, D: 0 };
@@ -123,14 +123,14 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
           else if (status === 'ANSWERING' && fastestPlayer) {
             const handResult = handAI.detectForVideo(video, performance.now());
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)'; ctx.lineWidth = 2; ctx.setLineDash([10, 10]);
-            ctx.beginPath(); ctx.moveTo(0, canvas.height/2); ctx.lineTo(canvas.width, canvas.height/2); ctx.stroke();
-            ctx.beginPath(); ctx.moveTo(canvas.width/2, 0); ctx.lineTo(canvas.width/2, canvas.height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, canvas.height / 2); ctx.lineTo(canvas.width, canvas.height / 2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(canvas.width / 2, 0); ctx.lineTo(canvas.width / 2, canvas.height); ctx.stroke();
             ctx.setLineDash([]);
 
             if (handResult.landmarks && handResult.landmarks.length > 0) {
               handResult.landmarks.forEach(hand => {
-                const target = hand[9]; 
-                const xRatio = 1 - target.x; 
+                const target = hand[9];
+                const xRatio = 1 - target.x;
                 const yRatio = target.y;
 
                 const isHandInWinnerZone = (fastestPlayer === 'LEFT' && xRatio < 0.5) || (fastestPlayer === 'RIGHT' && xRatio > 0.5);
@@ -138,23 +138,23 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
                 if (isHandInWinnerZone) {
                   const x = xRatio * canvas.width;
                   const y = yRatio * canvas.height;
-                  
+
                   ctx.shadowBlur = 15;
                   ctx.shadowColor = fastestPlayer === 'LEFT' ? '#38bdf8' : '#fb7185';
                   ctx.fillStyle = fastestPlayer === 'LEFT' ? '#38bdf8' : '#fb7185';
                   ctx.beginPath(); ctx.arc(x, y, 12, 0, 2 * Math.PI); ctx.fill();
-                  ctx.shadowBlur = 0; 
+                  ctx.shadowBlur = 0;
 
-                  let zone: 'A'|'B'|'C'|'D' | null = null;
+                  let zone: 'A' | 'B' | 'C' | 'D' | null = null;
                   const localX = fastestPlayer === 'LEFT' ? xRatio * 2 : (xRatio - 0.5) * 2;
-                  
-                  if (yRatio < 0.5) { zone = localX < 0.5 ? 'A' : 'B'; } 
+
+                  if (yRatio < 0.5) { zone = localX < 0.5 ? 'A' : 'B'; }
                   else { zone = localX < 0.5 ? 'C' : 'D'; }
 
                   if (zone) {
                     holdFramesRef.current[zone]++;
                     const progress = Math.min(1, holdFramesRef.current[zone] / HOLD_THRESHOLD);
-                    ctx.beginPath(); ctx.arc(x, y, 35, -Math.PI/2, (-Math.PI/2) + (2 * Math.PI * progress));
+                    ctx.beginPath(); ctx.arc(x, y, 35, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * progress));
                     ctx.strokeStyle = '#fbbf24'; ctx.lineWidth = 8; ctx.stroke();
 
                     if (holdFramesRef.current[zone] >= HOLD_THRESHOLD) {
@@ -187,8 +187,8 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
       let newHp = hp;
       if (isCorrect) {
         // ให้ดาเมจครั้งละ 20%
-        if (fastestPlayer === 'LEFT') newHp = Math.max(0, hp - 20); 
-        if (fastestPlayer === 'RIGHT') newHp = Math.min(100, hp + 20); 
+        if (fastestPlayer === 'LEFT') newHp = Math.max(0, hp - 20);
+        if (fastestPlayer === 'RIGHT') newHp = Math.min(100, hp + 20);
       }
       setHp(newHp); // 2. อัปเดตหลอดพลังให้ดันไปอีกฝั่ง
 
@@ -199,13 +199,13 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
         } else {
           // 🔁 ระบบ Infinite Loop: วนคำถามไปเรื่อยๆ จนกว่าหลอดจะสุด
           setCurrentQ(prev => (prev + 1) % questions.length);
-          setStatus('WAIT_TURN_BACK'); 
+          setStatus('WAIT_TURN_BACK');
           setFastestPlayer(null);
           setLockedChoice(null);
           isProcessingRef.current = false;
         }
-      }, 1500); 
-    }, isCorrect ? 1200 : 1000); 
+      }, 1500);
+    }, isCorrect ? 1200 : 1000);
   };
 
   const QuestionBox = () => (
@@ -252,9 +252,9 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
           <Trophy size={140} className="text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.6)] mb-8" />
         </motion.div>
         <h1 className="text-5xl md:text-7xl font-black mb-4">
-          ผู้ชนะเด็ดขาดคือ <span className={winnerColor}>{winnerTeam}</span> 🎉
+          ผู้ชนะคือ <span className={winnerColor}>{winnerTeam}</span> 🎉
         </h1>
-        <p className="text-2xl text-slate-400 mb-12">ดันแถบพลังสำเร็จ! ขอแสดงความยินดีด้วย!</p>
+        <p className="text-2xl text-slate-400 mb-12"> ขอแสดงความยินดีด้วย!</p>
         <button onClick={onFinish} className="px-12 py-5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 rounded-full font-black text-2xl transition-all shadow-[0_10px_30px_rgba(16,185,129,0.4)] hover:scale-105">
           กลับสู่หน้าหลัก
         </button>
@@ -298,14 +298,14 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
             <p className="text-2xl text-cyan-400 font-bold tracking-widest uppercase mb-10">การทดสอบปฏิกิริยาตอบสนองและวิชาการ</p>
             <div className="bg-slate-800/50 border border-slate-600 p-8 rounded-3xl max-w-3xl mb-12 shadow-xl">
               <p className="text-xl text-slate-300 text-center leading-relaxed">
-                ผู้เล่นทั้ง 2 ฝ่ายหันหลังให้หน้าจอ เมื่อได้ยินเสียงสัญญาณ <b>"บี๊บ!"</b> ให้รีบหันกลับมา <br/>
-                ฝ่ายที่หันมาเร็วที่สุดจะได้สิทธิ์ทำข้อสอบ ตอบถูก 1 ข้อ ดันหลอดพลังไปอีกฝั่ง <br/>
+                ผู้เล่นทั้ง 2 ฝ่ายหันหลังให้หน้าจอ เมื่อได้ยินเสียงสัญญาณ <b>"บี๊บ!"</b> ให้รีบหันกลับมา <br />
+                ฝ่ายที่หันมาเร็วที่สุดจะได้สิทธิ์ทำข้อสอบ ตอบถูก 1 ข้อ ดันหลอดพลังไปอีกฝั่ง <br />
                 <span className="text-amber-400 font-bold">เกมจะจบเมื่อมีผู้ดันหลอดพลังไปจนสุดขอบหน้าจอเท่านั้น!</span>
               </p>
             </div>
             <button onClick={() => {
               setStatus('WAIT_TURN_BACK');
-              try { const ctx = new (window.AudioContext || (window as any).webkitAudioContext)(); ctx.resume(); } catch(e){}
+              try { const ctx = new (window.AudioContext || (window as any).webkitAudioContext)(); ctx.resume(); } catch (e) { }
             }} className="px-14 py-5 bg-amber-500 text-slate-900 rounded-full font-black text-3xl shadow-[0_0_40px_rgba(245,158,11,0.5)] hover:scale-105 transition-transform">
               เข้าสู่สมรภูมิ
             </button>
@@ -349,21 +349,21 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
           <div className="absolute top-0 bottom-0 left-1/2 w-1 bg-white/20 border-x border-white/5 z-40 shadow-[0_0_30px_rgba(255,255,255,0.2)]"></div>
 
           <div className="w-1/2 h-full relative">
-             {fastestPlayer === 'LEFT' ? <ChoiceGrid /> : <QuestionBox />}
-             {status === 'ANSWERING' && fastestPlayer === 'LEFT' && (
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-cyan-500 text-white px-8 py-2 rounded-full font-black text-2xl shadow-[0_0_30px_rgba(6,182,212,0.8)] animate-pulse z-50 w-max">
-                  ซ้ายได้สิทธิ์ตอบ! ({timeLeft} วิ)
-                </div>
-             )}
+            {fastestPlayer === 'LEFT' ? <ChoiceGrid /> : <QuestionBox />}
+            {status === 'ANSWERING' && fastestPlayer === 'LEFT' && (
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-cyan-500 text-white px-8 py-2 rounded-full font-black text-2xl shadow-[0_0_30px_rgba(6,182,212,0.8)] animate-pulse z-50 w-max">
+                ซ้ายได้สิทธิ์ตอบ! ({timeLeft} วิ)
+              </div>
+            )}
           </div>
 
           <div className="w-1/2 h-full relative">
-             {fastestPlayer === 'RIGHT' ? <ChoiceGrid /> : <QuestionBox />}
-             {status === 'ANSWERING' && fastestPlayer === 'RIGHT' && (
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-rose-500 text-white px-8 py-2 rounded-full font-black text-2xl shadow-[0_0_30px_rgba(244,63,94,0.8)] animate-pulse z-50 w-max">
-                  ขวาได้สิทธิ์ตอบ! ({timeLeft} วิ)
-                </div>
-             )}
+            {fastestPlayer === 'RIGHT' ? <ChoiceGrid /> : <QuestionBox />}
+            {status === 'ANSWERING' && fastestPlayer === 'RIGHT' && (
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-rose-500 text-white px-8 py-2 rounded-full font-black text-2xl shadow-[0_0_30px_rgba(244,63,94,0.8)] animate-pulse z-50 w-max">
+                ขวาได้สิทธิ์ตอบ! ({timeLeft} วิ)
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -371,10 +371,10 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
       {status === 'RESULT' && (
         <motion.div initial={{ scale: 0.5, y: -50 }} animate={{ scale: 1, y: 0 }} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 flex flex-col items-center justify-center">
           <div className={`px-12 py-6 rounded-[3rem] border-8 backdrop-blur-xl shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col items-center text-center ${lockedChoice === qData.ans ? 'bg-emerald-500/90 border-white' : 'bg-rose-600/90 border-white'}`}>
-             {lockedChoice === qData.ans ? <CheckCircle2 size={80} className="text-white mb-2"/> : <XCircle size={80} className="text-white mb-2"/>}
-             <h1 className="text-5xl font-black text-white drop-shadow-md">
-               {lockedChoice === qData.ans ? 'ตอบถูก!' : 'ตอบผิดพลาด!'}
-             </h1>
+            {lockedChoice === qData.ans ? <CheckCircle2 size={80} className="text-white mb-2" /> : <XCircle size={80} className="text-white mb-2" />}
+            <h1 className="text-5xl font-black text-white drop-shadow-md">
+              {lockedChoice === qData.ans ? 'ตอบถูก!' : 'ตอบผิดพลาด!'}
+            </h1>
           </div>
         </motion.div>
       )}
@@ -384,7 +384,7 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
         <div className="absolute inset-0 pointer-events-none z-[60] overflow-hidden">
           {[...Array(30)].map((_, i) => {
             const isLeft = fastestPlayer === 'LEFT';
-            const startX = isLeft ? '25%' : '75%'; 
+            const startX = isLeft ? '25%' : '75%';
             const targetX = isLeft ? '75%' : '25%'; // วิ่งไปกระแทกฝั่งตรงข้าม
             return (
               <motion.div
@@ -392,7 +392,7 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
                 initial={{ left: startX, top: '50%', scale: 0, opacity: 0 }}
                 animate={{
                   left: targetX,
-                  top: '50px', 
+                  top: '50px',
                   scale: [0, Math.random() * 2 + 1, 0.5],
                   opacity: [0, 1, 0]
                 }}
@@ -404,7 +404,7 @@ export default function TugOfWarCamera({ questions, onFinish, experimentName }: 
           })}
         </div>
       )}
-      
+
       <button onClick={onFinish} className="absolute bottom-6 left-6 z-[100] bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-6 py-3 rounded-full font-bold shadow-xl border-2 border-white/50 flex items-center gap-2 transition-all hover:scale-105">
         <XCircle size={20} /> ออกจากการทดสอบ
       </button>
