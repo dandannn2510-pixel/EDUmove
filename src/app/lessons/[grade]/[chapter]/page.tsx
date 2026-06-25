@@ -7,7 +7,7 @@ import {
   MonitorPlay, Award, PlayCircle, ChevronRight, Gamepad2, X, PlaySquare,
   BookOpen, CheckCircle2, Video, FileText
 } from 'lucide-react';
-import InteractiveVideoPlayer from '@/components/InteractiveVideoPlayer';
+import InteractiveVideoPlayer, { getInteractiveLessonData } from '@/components/InteractiveVideoPlayer';
 
 // 📚 ฐานข้อมูลเนื้อหาวิชาวิทยาศาสตร์
 const chapterDetailsData: Record<string, Record<string, any>> = {
@@ -52,6 +52,9 @@ export default function ScienceChapterPage() {
   const [viewState, setViewState] = useState<'TIMELINE' | 'VIDEO_DETAIL'>('TIMELINE');
   const [isVideoOpen, setIsVideoOpen] = useState(false);
   const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
+
+  const lessonData = getInteractiveLessonData(grade, chapterId);
+  const segments = lessonData.segments;
 
   useEffect(() => setIsMounted(true), []);
   if (!isMounted) return null;
@@ -150,58 +153,30 @@ export default function ScienceChapterPage() {
                 </div>
 
                 <div className="lg:col-span-1 bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 rounded-[2.5rem] p-6 md:p-8 shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000] h-full flex flex-col animate-fade-in">
-                  {grade === 'p4' && chapterId === 'chapter3' ? (
-                    <>
-                      <div className="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
-                        <MonitorPlay className="text-slate-900 dark:text-white" size={24} />
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">ตอนเรียนทั้งหมด</h3>
-                      </div>
-                      <div className="flex flex-col gap-4 overflow-y-auto max-h-[420px] pr-1 py-2">
-                        {[
-                          'EP. 1: น้ำแข็ง น้ำ และไอน้ำ',
-                          'EP. 2: ทำไมน้ำแข็งจึงละลาย',
-                          'EP. 3: เสื้อผ้าเปียกตากแล้วแห้ง',
-                          'EP. 4: หยดน้ำข้างแก้ว',
-                          'EP. 5: การระเหยของน้ำ',
-                          'EP. 6: การแข็งตัวของสสาร',
-                          'EP. 7: เมฆและหมอก',
-                          'EP. 8: สรุปบทเรียน เรื่องสสาร ป.4'
-                        ].map((ep, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => {
-                              setSelectedVideoIndex(idx);
-                              setIsVideoOpen(true);
-                            }}
-                            className="flex items-center justify-between text-left bg-white dark:bg-slate-700 border-4 border-slate-900 dark:border-slate-600 hover:bg-emerald-50 dark:hover:bg-slate-800 p-4 rounded-2xl transition-all shadow-[4px_4px_0_0_#0F172A] dark:shadow-[4px_4px_0_0_#000000] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] active:scale-95"
-                          >
-                            <div className="flex items-center gap-3">
-                              <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-300 border-2 border-slate-900 font-black text-xs text-slate-900 shrink-0">
-                                {idx + 1}
-                              </span>
-                              <span className="text-slate-900 dark:text-white font-black text-sm leading-snug">{ep}</span>
-                            </div>
-                            <PlayCircle size={22} className="text-slate-900 dark:text-white fill-emerald-300 shrink-0 ml-2" strokeWidth={2.5} />
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-3 mb-8 border-b border-slate-100 dark:border-slate-700 pb-4">
-                        <FileText className="text-slate-900 dark:text-white" size={24} />
-                        <h3 className="text-xl font-bold text-slate-900 dark:text-white">สรุปสาระสำคัญ</h3>
-                      </div>
-                      <div className="flex flex-col gap-4">
-                        {details.concepts.map((concept: string, idx: number) => (
-                          <div key={idx} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-700/50 p-4 rounded-2xl">
-                            <CheckCircle2 size={20} className="text-emerald-500 shrink-0 mt-0.5" />
-                            <span className="text-slate-600 dark:text-slate-300 font-medium text-sm leading-relaxed">{concept}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                  <div className="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                    <MonitorPlay className="text-slate-900 dark:text-white" size={24} />
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">ตอนเรียนทั้งหมด</h3>
+                  </div>
+                  <div className="flex flex-col gap-4 overflow-y-auto max-h-[420px] pr-1 py-2">
+                    {segments.map((segment, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setSelectedVideoIndex(idx);
+                          setIsVideoOpen(true);
+                        }}
+                        className="flex items-center justify-between text-left bg-white dark:bg-slate-700 border-4 border-slate-900 dark:border-slate-600 hover:bg-emerald-50 dark:hover:bg-slate-800 p-4 rounded-2xl transition-all shadow-[4px_4px_0_0_#0F172A] dark:shadow-[4px_4px_0_0_#000000] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] active:scale-95"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-300 border-2 border-slate-900 font-black text-xs text-slate-900 shrink-0">
+                            {idx + 1}
+                          </span>
+                          <span className="text-slate-900 dark:text-white font-black text-sm leading-snug">{segment.title}</span>
+                        </div>
+                        <PlayCircle size={22} className="text-slate-900 dark:text-white fill-emerald-300 shrink-0 ml-2" strokeWidth={2.5} />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 
@@ -233,26 +208,14 @@ export default function ScienceChapterPage() {
 
       {/* 🎬 MODAL เปิดวิดีโอ */}
       <AnimatePresence>
-        {isVideoOpen && grade === 'p4' && chapterId === 'chapter3' ? (
-          <InteractiveVideoPlayer onClose={() => setIsVideoOpen(false)} initialSegmentIndex={selectedVideoIndex} />
-        ) : isVideoOpen ? (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsVideoOpen(false)} className="absolute inset-0 bg-black/90 backdrop-blur-sm cursor-pointer"></motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-5xl bg-white dark:bg-[#0f172a] border-4 border-slate-900 dark:border-slate-700 rounded-[2.5rem] shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000000] overflow-hidden z-10 flex flex-col">
-              <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 z-20 bg-white dark:bg-slate-900">
-                <div className="flex items-center gap-3">
-                  <PlaySquare className="text-emerald-500" size={24} />
-                  <h3 className="font-black text-slate-900 dark:text-white text-lg">{details.title}</h3>
-                </div>
-                <button onClick={() => setIsVideoOpen(false)} className="text-slate-900 dark:text-slate-400 hover:text-white bg-white dark:bg-slate-800 hover:bg-rose-500 dark:hover:bg-rose-500 border-2 border-slate-900 dark:border-slate-700 p-2.5 rounded-full shadow-[2px_2px_0_0_#000000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="aspect-video bg-black relative flex w-full overflow-hidden">
-                <iframe className="absolute inset-0 w-full h-full border-0" src={`https://www.youtube.com/embed/${videoId}?autoplay=1`} title="Video Lesson" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
-              </div>
-            </motion.div>
-          </div>
+        {isVideoOpen ? (
+          <InteractiveVideoPlayer 
+            onClose={() => setIsVideoOpen(false)} 
+            initialSegmentIndex={selectedVideoIndex} 
+            grade={grade}
+            chapterId={chapterId}
+            title={`บทเรียนวิทยาศาสตร์ ${grade.toUpperCase()}: ${details.title}`}
+          />
         ) : null}
       </AnimatePresence>
     </main>

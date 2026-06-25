@@ -133,9 +133,10 @@ interface Props {
   chapterId?: string;
   summaryTitle?: string;
   summaryItems?: string[];
+  title?: string;
 }
 
-function getInteractiveLessonData(grade: string, chapterId: string) {
+export function getInteractiveLessonData(grade: string, chapterId: string) {
   if (grade === 'p4' && chapterId === 'chapter3') {
     return CHAPTER3_P4_LESSON;
   }
@@ -197,11 +198,15 @@ export default function InteractiveVideoPlayer({
   grade = 'p4',
   chapterId = 'chapter3',
   summaryTitle,
-  summaryItems
+  summaryItems,
+  title
 }: Props) {
   const lessonData = getInteractiveLessonData(grade, chapterId);
   const activeSummaryTitle = summaryTitle || lessonData.summaryTitle;
   const activeSummaryItems = summaryItems || lessonData.summaryItems;
+  
+  const isMath = title?.includes('คณิตศาสตร์');
+  const themeColor = isMath ? 'text-fuchsia-500 dark:text-fuchsia-400' : 'text-emerald-500 dark:text-emerald-400';
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const playerContainerRef = useRef<HTMLDivElement>(null);
@@ -586,9 +591,9 @@ export default function InteractiveVideoPlayer({
         {/* Header บาร์ */}
         <div className="flex items-center justify-between p-6 border-b-4 border-slate-900 dark:border-slate-700 bg-white dark:bg-slate-900 z-20 shrink-0">
           <div className="flex items-center gap-3">
-            <Video className="text-emerald-500 dark:text-emerald-400" size={24} />
+            <Video className={themeColor} size={24} />
             <h3 className="font-black text-slate-900 dark:text-white text-lg sm:text-xl">
-              บทเรียนอัจฉริยะ ป.4: สสารละารเปลี่ยนปลง
+              {title || `บทเรียนอัจฉริยะ ป.4: สสารและการเปลี่ยนแปลง`}
             </h3>
           </div>
           <button onClick={handleClose} className="text-slate-900 dark:text-slate-400 hover:text-white bg-white dark:bg-slate-800 hover:bg-rose-500 dark:hover:bg-rose-500 border-2 border-slate-900 dark:border-slate-700 p-2.5 rounded-full shadow-[2px_2px_0_0_#000000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">

@@ -6,6 +6,7 @@ import {
   MonitorPlay, Award, PlayCircle, ChevronRight, Gamepad2, X, PlaySquare,
   BookOpen, CheckCircle2, Video, FileText
 } from 'lucide-react';
+import InteractiveVideoPlayer, { getInteractiveLessonData } from '@/components/InteractiveVideoPlayer';
 
 const chapterDetailsData: Record<string, Record<string, any>> = {
   p4: {
@@ -54,6 +55,10 @@ export default function MathChapterPage() {
   const [isMounted, setIsMounted] = useState(false);
   const [viewState, setViewState] = useState<'TIMELINE' | 'VIDEO_DETAIL'>('TIMELINE');
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  const [selectedVideoIndex, setSelectedVideoIndex] = useState(0);
+
+  const lessonData = getInteractiveLessonData(level, chapterId);
+  const segments = lessonData.segments;
 
   useEffect(() => setIsMounted(true), []);
   if (!isMounted) return null;
@@ -151,7 +156,7 @@ export default function MathChapterPage() {
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mb-12 flex-grow">
                 <div 
-                  onClick={() => setIsVideoOpen(true)}
+                  onClick={() => { setSelectedVideoIndex(0); setIsVideoOpen(true); }}
                   className="lg:col-span-2 relative h-[350px] md:h-[450px] bg-slate-900 border-4 border-slate-900 dark:border-slate-700 rounded-[2.5rem] overflow-hidden group cursor-pointer shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000000] hover:-translate-y-2 hover:shadow-[12px_12px_0_0_#0F172A] dark:hover:shadow-[12px_12px_0_0_#000000] transition-all duration-300"
                 >
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
@@ -167,17 +172,29 @@ export default function MathChapterPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent opacity-85 pointer-events-none"></div>
                 </div>
 
-                <div className="lg:col-span-1 bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 rounded-[2.5rem] p-6 md:p-8 shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000] h-full flex flex-col">
-                  <div className="flex items-center gap-3 mb-8 border-b border-slate-100 dark:border-slate-700 pb-4">
-                    <FileText className="text-slate-900 dark:text-white" size={24} />
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">สรุปสาระสำคัญ</h3>
+                <div className="lg:col-span-1 bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 rounded-[2.5rem] p-6 md:p-8 shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000] h-full flex flex-col animate-fade-in">
+                  <div className="flex items-center gap-3 mb-6 border-b border-slate-100 dark:border-slate-700 pb-4">
+                    <MonitorPlay className="text-slate-900 dark:text-white" size={24} />
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">ตอนเรียนทั้งหมด</h3>
                   </div>
-                  <div className="flex flex-col gap-4">
-                    {details.concepts.map((concept: string, idx: number) => (
-                      <div key={idx} className="flex items-start gap-3 bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-100 dark:border-slate-700/50 p-4 rounded-2xl">
-                        <CheckCircle2 size={20} className="text-fuchsia-500 shrink-0 mt-0.5" />
-                        <span className="text-slate-600 dark:text-slate-300 font-medium text-sm leading-relaxed">{concept}</span>
-                      </div>
+                  <div className="flex flex-col gap-4 overflow-y-auto max-h-[420px] pr-1 py-2">
+                    {segments.map((segment, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          setSelectedVideoIndex(idx);
+                          setIsVideoOpen(true);
+                        }}
+                        className="flex items-center justify-between text-left bg-white dark:bg-slate-700 border-4 border-slate-900 dark:border-slate-600 hover:bg-fuchsia-50 dark:hover:bg-slate-800 p-4 rounded-2xl transition-all shadow-[4px_4px_0_0_#0F172A] dark:shadow-[4px_4px_0_0_#000000] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] active:scale-95"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-fuchsia-300 border-2 border-slate-900 font-black text-xs text-slate-900 shrink-0">
+                            {idx + 1}
+                          </span>
+                          <span className="text-slate-900 dark:text-white font-black text-sm leading-snug">{segment.title}</span>
+                        </div>
+                        <PlayCircle size={22} className="text-slate-900 dark:text-white fill-fuchsia-300 shrink-0 ml-2" strokeWidth={2.5} />
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -210,25 +227,15 @@ export default function MathChapterPage() {
       </div>
 
       <AnimatePresence>
-        {isVideoOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-12">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsVideoOpen(false)} className="absolute inset-0 bg-black/90 backdrop-blur-sm cursor-pointer"></motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="relative w-full max-w-5xl bg-white dark:bg-[#0f172a] border-4 border-slate-900 dark:border-slate-700 rounded-[2.5rem] shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000000] overflow-hidden z-10 flex flex-col">
-              <div className="flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 z-20 bg-white dark:bg-slate-900">
-                <div className="flex items-center gap-3">
-                  <PlaySquare className="text-fuchsia-500" size={24} />
-                  <h3 className="font-black text-slate-900 dark:text-white text-lg">{details.title}</h3>
-                </div>
-                <button onClick={() => setIsVideoOpen(false)} className="text-slate-900 dark:text-slate-400 hover:text-white bg-white dark:bg-slate-800 hover:bg-rose-500 dark:hover:bg-rose-500 border-2 border-slate-900 dark:border-slate-700 p-2.5 rounded-full shadow-[2px_2px_0_0_#000000] hover:shadow-none hover:translate-x-[2px] hover:translate-y-[2px] transition-all">
-                  <X size={20} />
-                </button>
-              </div>
-              <div className="aspect-video bg-black relative flex w-full overflow-hidden">
-                <iframe className="absolute inset-0 w-full h-full border-0" src={`https://www.youtube.com/embed/${videoId}?autoplay=1`} title="Video Lesson" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
-              </div>
-            </motion.div>
-          </div>
-        )}
+        {isVideoOpen ? (
+          <InteractiveVideoPlayer 
+            onClose={() => setIsVideoOpen(false)} 
+            initialSegmentIndex={selectedVideoIndex} 
+            grade={level}
+            chapterId={chapterId}
+            title={`บทเรียนคณิตศาสตร์ ${level.toUpperCase()}: ${details.title}`}
+          />
+        ) : null}
       </AnimatePresence>
     </main>
   );
