@@ -25,7 +25,7 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
   segments: [
     {
       youtubeId: '_4Pns0KNxzk',
-      title: 'EP. 1: น้ำแข็ง น้ำ และไอน้ำ',
+      title: 'คำถามที่ 1: น้ำแข็ง น้ำ และไอน้ำ',
       questions: [
         {
           q: 'น้ำแข็ง น้ำ และไอน้ำ เป็นสิ่งเดียวกันหรือไม่?',
@@ -38,7 +38,7 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
     },
     {
       youtubeId: '_4Pns0KNxzk',
-      title: 'EP. 2: ทำไมน้ำแข็งจึงละลาย',
+      title: 'คำถามที่ 2: ทำไมน้ำแข็งจึงละลาย',
       questions: [
         {
           q: 'ทำไมน้ำแข็งจึงละลายกลายเป็นน้ำ?',
@@ -51,7 +51,7 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
     },
     {
       youtubeId: '_4Pns0KNxzk',
-      title: 'EP. 3: เสื้อผ้าเปียกตากแล้วแห้ง',
+      title: 'คำถามที่ 3: เสื้อผ้าเปียกตากแล้วแห้ง',
       questions: [
         {
           q: 'ทำไมเสื้อผ้าเปียกที่ตากไว้จึงแห้งได้?',
@@ -64,7 +64,7 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
     },
     {
       youtubeId: '_4Pns0KNxzk',
-      title: 'EP. 4: หยดน้ำข้างแก้ว',
+      title: 'คำถามที่ 4: หยดน้ำข้างแก้ว',
       questions: [
         {
           q: 'หยดน้ำเกาะรอบแก้วน้ำเย็นเกิดขึ้นจากอะไร?',
@@ -77,7 +77,7 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
     },
     {
       youtubeId: '_4Pns0KNxzk',
-      title: 'EP. 5: การระเหยของน้ำ',
+      title: 'คำถามที่ 5: การระเหยของน้ำ',
       questions: [
         {
           q: 'ถ้าวางน้ำแข็งทิ้งไว้ในห้อง แล้วน้ำค่อยๆ หายไป เกิดจากขั้นตอนใด?',
@@ -90,7 +90,7 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
     },
     {
       youtubeId: '_4Pns0KNxzk',
-      title: 'EP. 6: การแข็งตัวของสสาร',
+      title: 'คำถามที่ 6: การแข็งตัวของสสาร',
       questions: [
         {
           q: 'น้ำเปล่าที่นำไปแช่ในช่องฟรีซกลายเป็นน้ำแข็ง เกิดกระบวนการใด?',
@@ -103,7 +103,7 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
     },
     {
       youtubeId: '_4Pns0KNxzk',
-      title: 'EP. 7: เมฆและหมอก',
+      title: 'คำถามที่ 7: เมฆและหมอก',
       questions: [
         {
           q: 'การเกิดเมฆและหมอกบนท้องฟ้าเกี่ยวข้องกับกระบวนการใด?',
@@ -116,7 +116,7 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
     },
     {
       youtubeId: '_4Pns0KNxzk',
-      title: 'EP. 8: สรุปบทเรียน เรื่องสสาร ป.4',
+      title: 'สรุปบทเรียน เรื่องสสาร ป.4',
       questions: []
     }
   ],
@@ -124,6 +124,94 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
   summaryItems: [
     'ได้รับความร้อน → การหลอมเหลว (ของแข็งเป็นของเหลว), การกลายเป็นไอ/การระเหย (ของเหลวเป็นแก๊ส)',
     'สูญเสียความร้อน → การแข็งตัว (ของเหลวเป็นของแข็ง), การควบแน่น (แก๊สเป็นของเหลว)'
+  ]
+};
+
+const CHAPTER3_P6_LESSON: { segments: VideoSegment[]; summaryTitle: string; summaryItems: string[] } = {
+  segments: [
+    {
+      youtubeId: 'M7lc1UVf-VE',
+      title: 'คำถามที่ 1: การเกิดแรงไฟฟ้าจากการขัดถู',
+      questions: [
+        {
+          q: 'ปรากฏการณ์ "หวีผมในฤดูหนาวแล้วเส้นผมชี้ฟูตามหวีขึ้นมา" เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
+          leftChoice: 'เกี่ยวข้อง',
+          rightChoice: 'ไม่เกี่ยวข้อง',
+          ans: 'LEFT',
+          explanation: 'ถูกต้อง! การหวีผมในสภาพอากาศแห้ง (เช่น ฤดูหนาว) จะเกิดการเสียดสีทำให้อิเล็กตรอนถ่ายโอนและเกิดไฟฟ้าสถิต หวีพลาสติกจึงสามารถดึงดูดเส้นผมให้ชี้ฟูขึ้นมาได้'
+        }
+      ]
+    },
+    {
+      youtubeId: 'M7lc1UVf-VE',
+      title: 'คำถามที่ 2: ผลของแรงโน้มถ่วงต่อวัตถุ',
+      questions: [
+        {
+          q: 'การที่โยนลูกบอลขึ้นไปในอากาศแล้วลูกบอลตกลงมาที่พื้น เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
+          leftChoice: 'เกี่ยวข้อง',
+          rightChoice: 'ไม่เกี่ยวข้อง',
+          ans: 'RIGHT',
+          explanation: 'ถูกต้อง! การที่ลูกบอลหรือวัตถุตกลงสู่พื้นดินเกิดจาก "แรงโน้มถ่วงของโลก" ดึงดูดวัตถุเข้าสู่ศูนย์กลาง ไม่เกี่ยวกับแรงไฟฟ้า'
+        }
+      ]
+    },
+    {
+      youtubeId: 'M7lc1UVf-VE',
+      title: 'คำถามที่ 3: ไฟฟ้าสถิตบนเสื้อผ้า',
+      questions: [
+        {
+          q: 'การที่เสื้อผ้าบางชนิดแนบติดตัวเราในวันที่อากาศแห้งหรือฤดูหนาว เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
+          leftChoice: 'เกี่ยวข้อง',
+          rightChoice: 'ไม่เกี่ยวข้อง',
+          ans: 'LEFT',
+          explanation: 'ถูกต้อง! เกิดจากไฟฟ้าสถิต (แรงไฟฟ้า) ที่สะสมอยู่บนผิวของเส้นใยผ้าเนื่องจากการเสียดสีกับผิวหนังหรือเสื้อผ้าชั้นในในสภาพอากาศแห้ง'
+        }
+      ]
+    },
+    {
+      youtubeId: 'M7lc1UVf-VE',
+      title: 'คำถามที่ 4: การไหลของของเหลวตามแรงโน้มถ่วง',
+      questions: [
+        {
+          q: 'การเทน้ำออกจากขวดแล้วน้ำไหลลงสู่แก้ว เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
+          leftChoice: 'เกี่ยวข้อง',
+          rightChoice: 'ไม่เกี่ยวข้อง',
+          ans: 'RIGHT',
+          explanation: 'ถูกต้อง! น้ำที่ไหลลงจากขวดเข้าสู่แก้วเป็นผลมาจากแรงโน้มถ่วงของโลกดึงดูดของเหลวให้ไหลลงสู่ที่ต่ำกว่า ไม่เกี่ยวข้องกับแรงไฟฟ้า'
+        }
+      ]
+    },
+    {
+      youtubeId: 'M7lc1UVf-VE',
+      title: 'คำถามที่ 5: แรงดึงดูดของแม่เหล็กตู้เย็น',
+      questions: [
+        {
+          q: 'การใช้แผ่นการ์ตูนแม่เหล็กแปะติดตู้เย็น เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
+          leftChoice: 'เกี่ยวข้อง',
+          rightChoice: 'ไม่เกี่ยวข้อง',
+          ans: 'RIGHT',
+          explanation: 'ถูกต้อง! การที่ตัวการ์ตูนแปะติดตู้เย็นได้เกิดจาก "แรงแม่เหล็ก" (Magnetic Force) ดึงดูดระหว่างแม่เหล็กกับเหล็กที่เป็นฝาตู้เย็น ไม่ใช่แรงไฟฟ้า'
+        }
+      ]
+    },
+    {
+      youtubeId: 'M7lc1UVf-VE',
+      title: 'คำถามที่ 6: การคายประจุและไฟช็อตในชีวิตประจำวัน',
+      questions: [
+        {
+          q: 'การจับรถเข็นเหล็กในห้างสรรพสินค้าแล้วรู้สึกโดนไฟช็อตแปร๊บ เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
+          leftChoice: 'เกี่ยวข้อง',
+          rightChoice: 'ไม่เกี่ยวข้อง',
+          ans: 'LEFT',
+          explanation: 'ถูกต้อง! เมื่อเราเดินเสียดสีกับพื้นหรือเสื้อผ้า ร่างกายจะสะสมประจุไฟฟ้าสถิตไว้ และเมื่อสัมผัสโลหะอย่างรถเข็น ประจุเหล่านั้นจะถ่ายโอน (คายประจุ) อย่างรวดเร็ว ทำให้รู้สึกเหมือนโดนไฟช็อต'
+        }
+      ]
+    }
+  ],
+  summaryTitle: '💡 สรุปเรื่องแรงไฟฟ้าและไฟฟ้าสถิต',
+  summaryItems: [
+    'แรงไฟฟ้า (Electrostatic Force) เกิดจากประจุไฟฟ้าสะสมบนวัตถุที่ผ่านการเสียดสี/ขัดถูในสภาพอากาศแห้ง',
+    'แรงที่ไม่ใช่แรงไฟฟ้า ได้แก่ แรงโน้มถ่วง (วัตถุตกสู่พื้น, น้ำไหลลงแก้ว) และแรงแม่เหล็ก (การ์ตูนติดตู้เย็น)'
   ]
 };
 
@@ -146,6 +234,9 @@ interface YTPlayer {
 export function getInteractiveLessonData(grade: string, chapterId: string) {
   if (grade === 'p4' && chapterId === 'chapter3') {
     return CHAPTER3_P4_LESSON;
+  }
+  if (grade === 'p6' && chapterId === 'chapter3') {
+    return CHAPTER3_P6_LESSON;
   }
 
   const rawQuestions = allQuestions[grade]?.[chapterId]?.pretest?.questions || [];
@@ -704,33 +795,37 @@ export default function InteractiveVideoPlayer({
                   </div>
 
                   {/* ขยายขนาดปุ่มช้อยส์สองฝั่งสำหรับเล่นแบบชูมือ (เพิ่มขนาดฟอนต์/กล่อง และ shadow สไตล์ Neo-brutalism) */}
-                  <div className="absolute inset-x-8 bottom-[10%] flex gap-8 z-20 w-[90%] max-w-5xl justify-center items-stretch select-none">
+                  <div className="absolute bottom-[10%] left-1/2 -translate-x-1/2 flex gap-8 z-20 w-[90%] max-w-5xl justify-center items-stretch select-none">
                     {/* ปุ่มช้อยส์ซ้าย */}
                     <div
-                      className={`relative flex-1 bg-cyan-400 dark:bg-cyan-500 border-4 border-slate-900 p-8 rounded-[2rem] flex flex-col justify-center items-center text-center shadow-[8px_8px_0_0_#000000] dark:shadow-[8px_8px_0_0_#000000] transition-all min-h-[180px] ${
-                        lockedChoice === 'LEFT' ? 'scale-105 -translate-y-2 border-white dark:border-white shadow-[12px_12px_0_0_#06b6d4]' : ''
+                      className={`relative flex-1 bg-cyan-400 dark:bg-cyan-500 border-4 border-slate-900 rounded-[2rem] flex flex-col overflow-hidden shadow-[8px_8px_0_0_#000000] transition-all min-h-[180px] ${
+                        lockedChoice === 'LEFT' ? 'scale-105 -translate-y-2 ring-4 ring-cyan-300 dark:ring-cyan-400 shadow-[12px_12px_0_0_#06b6d4]' : ''
                       }`}
                     >
-                      <span className="absolute -top-4 left-6 bg-cyan-600 text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border border-slate-900">
-                        👈 ยกมือฝั่งซ้ายตอบ
-                      </span>
-                      <span className="text-xl sm:text-2xl md:text-3xl font-black leading-snug">
-                        {currentQData.leftChoice}
-                      </span>
+                      <div className="bg-slate-900 text-cyan-300 py-3 px-5 text-center text-xs sm:text-sm font-black uppercase tracking-wider border-b-4 border-slate-900 flex items-center justify-center gap-2">
+                        <span>✋ ยกมือฝั่งซ้ายตอบ</span>
+                      </div>
+                      <div className="flex-1 flex items-center justify-center p-6 text-slate-900">
+                        <span className="text-xl sm:text-2xl md:text-3xl font-black leading-snug text-center">
+                          {currentQData.leftChoice}
+                        </span>
+                      </div>
                     </div>
 
                     {/* ปุ่มช้อยส์ขวา */}
                     <div
-                      className={`relative flex-1 bg-pink-400 dark:bg-pink-500 border-4 border-slate-900 p-8 rounded-[2rem] flex flex-col justify-center items-center text-center shadow-[8px_8px_0_0_#000000] dark:shadow-[8px_8px_0_0_#000000] transition-all min-h-[180px] ${
-                        lockedChoice === 'RIGHT' ? 'scale-105 -translate-y-2 border-white dark:border-white shadow-[12px_12px_0_0_#ec4899]' : ''
+                      className={`relative flex-1 bg-pink-400 dark:bg-pink-500 border-4 border-slate-900 rounded-[2rem] flex flex-col overflow-hidden shadow-[8px_8px_0_0_#000000] transition-all min-h-[180px] ${
+                        lockedChoice === 'RIGHT' ? 'scale-105 -translate-y-2 ring-4 ring-pink-300 dark:ring-pink-400 shadow-[12px_12px_0_0_#ec4899]' : ''
                       }`}
                     >
-                      <span className="absolute -top-4 right-6 bg-pink-600 text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider border border-slate-900">
-                        ยกมือฝั่งขวาตอบ 👉
-                      </span>
-                      <span className="text-xl sm:text-2xl md:text-3xl font-black leading-snug">
-                        {currentQData.rightChoice}
-                      </span>
+                      <div className="bg-slate-900 text-pink-300 py-3 px-5 text-center text-xs sm:text-sm font-black uppercase tracking-wider border-b-4 border-slate-900 flex items-center justify-center gap-2">
+                        <span>ยกมือฝั่งขวาตอบ ✋</span>
+                      </div>
+                      <div className="flex-1 flex items-center justify-center p-6 text-slate-900">
+                        <span className="text-xl sm:text-2xl md:text-3xl font-black leading-snug text-center">
+                          {currentQData.rightChoice}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </>

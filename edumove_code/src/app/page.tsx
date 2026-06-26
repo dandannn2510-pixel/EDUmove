@@ -140,7 +140,7 @@ export default function Home() {
             transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
             className="relative mb-8 h-48 w-48 sm:h-56 sm:w-56 lg:h-[16rem] lg:w-[16rem]"
           >
-            <img src="/logo.png" alt="edumove character" className="relative z-10 h-full w-full object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.12)] dark:drop-shadow-[0_15px_30px_rgba(0,0,0,0.3)]" />
+            <img src="/logo.png" alt="EDUmove character" className="relative z-10 h-full w-full object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.12)] dark:drop-shadow-[0_15px_30px_rgba(0,0,0,0.3)]" />
           </motion.div>
 
           <div className="max-w-4xl mx-auto flex flex-col items-center">
@@ -153,8 +153,8 @@ export default function Home() {
               <span className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-800 dark:text-slate-100 mb-2">
                 เรียนสนุก ลุกนั่งสบาย ไปกับ
               </span>
-              <span className="text-6xl sm:text-7xl md:text-[6.5rem] font-black bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent pb-2 drop-shadow-sm dark:drop-shadow-none">
-                edumove
+              <span className="text-6xl sm:text-7xl md:text-[6.5rem] font-black pb-2 drop-shadow-sm dark:drop-shadow-none">
+                <span className="text-orange-500">EDU</span><span className="text-blue-500">move</span>
               </span>
             </h1>
 
@@ -265,7 +265,9 @@ export default function Home() {
           <div>
             <div className="mb-6 flex items-center gap-3">
               <Atom className="text-indigo-600 dark:text-indigo-400" size={28} />
-              <span className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">edumove</span>
+              <span className="text-2xl font-bold tracking-tight">
+                <span className="text-orange-500">EDU</span><span className="text-blue-600 dark:text-blue-400">move</span>
+              </span>
             </div>
             <p className="text-sm font-normal leading-relaxed text-slate-500 dark:text-slate-400">
               นวัตกรรมการศึกษาเพื่ออนาคต ออกแบบให้ใช้งานง่าย เรียนสนุก ได้ความรู้ สำหรับนักเรียนทุกคน
@@ -286,7 +288,7 @@ export default function Home() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail size={18} className="shrink-0 text-slate-400" />
-                support@edumove.school.ac.th
+                support@EDUmove.school.ac.th
               </li>
             </ul>
           </div>

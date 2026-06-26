@@ -315,7 +315,7 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
         )}
       </AnimatePresence>
 
-      <button onClick={onExit} className="absolute bottom-6 left-6 z-[100] bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2">
+      <button onClick={() => onExit()} className="absolute bottom-6 left-6 z-[100] bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2">
         <XCircle size={20} /> ออกจากแบบทดสอบ
       </button>
     </div>

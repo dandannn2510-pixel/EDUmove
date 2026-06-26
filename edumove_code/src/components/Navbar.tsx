@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -54,10 +54,11 @@ export default function Navbar() {
           <Link href="/" className="group flex items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-2xl">
             {/* 💡 เอากรอบออกแล้ว! และตั้งค่าให้แสดงรูปแบบอิสระ (object-contain) */}
             <div className="shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
-              <img src="/logo.png" alt="edumove logo" className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-sm" />
+              <img src="/logo.png" alt="EDUmove logo" className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-sm" />
             </div>
-            <span className="hidden sm:block bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-xl font-bold tracking-tight text-transparent dark:from-blue-400 dark:to-indigo-400">
-              edumove
+            <span className="hidden sm:block text-xl font-bold tracking-tight">
+              <span className="text-orange-500">EDU</span>
+              <span className="text-blue-600 dark:text-blue-400">move</span>
             </span>
           </Link>
         </div>

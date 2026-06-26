@@ -56,7 +56,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[#F8FAFC] dark:bg-[#0F172A] selection:bg-amber-200 selection:text-amber-900" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
-      
+
       {/* ลายจุดสมุดโน้ตจางๆ */}
       <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
 
@@ -113,7 +113,7 @@ export default function Home() {
         {/* คำบรรยาย */}
         <p className="max-w-2xl text-lg sm:text-xl font-medium text-slate-600 dark:text-slate-300 mb-10 leading-relaxed">
           เปลี่ยนบรรยากาศในห้องเรียน <br className="hidden sm:block" />
-          ไปกับแหล่งการเรียนรู้วิทยาศาสตร์ & คณิตศาสตร์{' '}
+          ไปกับแหล่งการเรียนรู้ วิทยาศาสตร์ & คณิตศาสตร์{' '}
           <span className="font-black whitespace-nowrap">
             <span className="text-[#FF6B00] dark:text-[#FF8A33]">EDU</span>
             <span className="text-[#2563EB] dark:text-[#3B82F6]">move</span>
@@ -225,7 +225,10 @@ export default function Home() {
           <div>
             <div className="mb-4 flex items-center gap-3">
               <Atom className="text-blue-400" size={32} />
-              <span className="text-3xl font-black tracking-tight text-white">edumove</span>
+              <span className="text-3xl font-black tracking-tight text-white">
+                <span className="text-orange-500">EDU</span>
+                <span className="text-blue-500">move</span>
+              </span>
             </div>
             <p className="text-slate-400 text-sm font-medium leading-relaxed">
               สื่อการเรียนการสอนและนวัตกรรมการศึกษาเพื่ออนาคต เรียนสนุก ได้ความรู้ สำหรับนักเรียนทุกคน
@@ -238,19 +241,19 @@ export default function Home() {
             <ul className="space-y-3 text-sm font-medium text-slate-300">
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
-                <span>นายวิทย์ศรุต จันทร์บ้านโต้น</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
                 <span>นางสาวพิชชาภา เจริญสุขรุ่งเรือง</span>
               </li>
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
-                <span>นางสาวอาภาภัทร ชะนะโชติ</span>
+                <span>นายวิทย์ศรุต จันทร์บ้านโต้น</span>
               </li>
               <li className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
                 <span>นายอภิสิทธิ์ จันทะเเจ่ม</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
+                <span>นางสาวอาภาภัทร ชะนะโชติ</span>
               </li>
             </ul>
           </div>
@@ -299,7 +302,7 @@ export default function Home() {
 
         {/* Copyright */}
         <div className="mx-auto mt-12 max-w-7xl border-t border-slate-800 pt-8 text-center text-sm font-semibold text-slate-400">
-          &copy; {new Date().getFullYear()} edumove Project. All rights reserved.
+          &copy; {new Date().getFullYear()} EDUmove Project. All rights reserved.
         </div>
       </footer>
     </main>

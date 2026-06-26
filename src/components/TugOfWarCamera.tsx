@@ -426,7 +426,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
         </div>
       )}
 
-      <button onClick={onFinish} className="absolute bottom-6 left-6 z-[100] bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-6 py-3 rounded-full font-bold shadow-xl border-2 border-white/50 flex items-center gap-2 transition-all hover:scale-105">
+      <button onClick={() => onFinish()} className="absolute bottom-6 left-6 z-[100] bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-6 py-3 rounded-full font-bold shadow-xl border-2 border-white/50 flex items-center gap-2 transition-all hover:scale-105">
         <XCircle size={20} /> ออกจากการทดสอบ
       </button>
     </div>
