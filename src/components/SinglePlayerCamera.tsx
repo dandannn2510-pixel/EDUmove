@@ -5,6 +5,8 @@ import { HandLandmarker } from '@mediapipe/tasks-vision';
 import { getHandLandmarker } from '@/utils/mediapipe';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
 import { CheckCircle2, XCircle, FileText, Home, RotateCcw, Clock, Trophy } from 'lucide-react';
+import { gameMusic } from '@/utils/gameMusic';
+import ConfettiCelebration from './ConfettiCelebration';
 
 export interface SingleQuestionData {
   q: string;
@@ -56,7 +58,12 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
   const handleAnswer = useCallback((selected: 'LEFT' | 'RIGHT' | 'TIMEOUT') => {
     setStatus('RESULT');
     const isCorrect = selected === qDataRef.current.ans;
-    if (isCorrect) setScore(prev => prev + 1);
+    if (isCorrect) {
+      setScore(prev => prev + 1);
+      gameMusic.playCorrectSound();
+    } else if (selected !== 'TIMEOUT') {
+      gameMusic.playIncorrectSound();
+    }
 
     setTimeout(() => {
       setCurrentQ(prev => {
@@ -74,14 +81,37 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
   }, [questions.length]);
 
   useEffect(() => {
+    if (status === 'PLAYING') {
+      gameMusic.start();
+    } else {
+      gameMusic.stop();
+    }
+
+    if (status === 'SUMMARY') {
+      const percentage = Math.round((score / questions.length) * 100);
+      if (percentage >= 50) {
+        gameMusic.playStageClearSound();
+      } else {
+        gameMusic.playStageFailSound();
+      }
+    }
+
+    return () => {
+      gameMusic.stop();
+    };
+  }, [status, score, questions.length]);
+
+  useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === 'SHOW_TITLE') {
       timer = setTimeout(() => { setStatus('READY'); setReadyTime(3); }, 3000);
     } 
     else if (status === 'READY') {
       if (readyTime > 0) {
+        gameMusic.playCountdownTickSound(false);
         timer = setTimeout(() => setReadyTime(prev => prev - 1), 1000);
       } else {
+        gameMusic.playCountdownTickSound(true);
         setStatus('PLAYING'); setTimeLeft(15); setLockedChoice(null);
         isProcessingRef.current = false; holdFramesRef.current = { LEFT: 0, RIGHT: 0 };
       }
@@ -91,6 +121,7 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
         timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
       } else {
         setLockedChoice('TIMEOUT');
+        gameMusic.playTimeoutSound();
         handleAnswer('TIMEOUT'); 
       }
     }
@@ -199,6 +230,7 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
     return (
       <div className="w-full h-screen flex flex-col items-center justify-center bg-[#F8FAFC] dark:bg-[#0F172A] relative overflow-hidden" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
         <div className="absolute inset-0 z-0 bg-[radial-gradient(#CBD5E1_2px,transparent_2px)] dark:bg-[radial-gradient(#334155_2px,transparent_2px)] [background-size:32px_32px] opacity-50 pointer-events-none"></div>
+        {percentage >= 50 && <ConfettiCelebration />}
 
         <motion.div initial={{ scale: 0.9, opacity: 0, y: 30 }} animate={{ scale: 1, opacity: 1, y: 0 }} className="bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-10 md:p-14 rounded-[2.5rem] shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000000] max-w-2xl w-full text-center relative z-10">
           <motion.div animate={{ y: [-10, 10, -10] }} transition={{ repeat: Infinity, duration: 4 }}>
@@ -252,7 +284,7 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
               ข้อสอบที่ {currentQ + 1}
             </div>
             <motion.div key={readyTime} initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 1.5, opacity: 0 }} className="text-[10rem] font-black text-amber-400 drop-shadow-[0_10px_40px_rgba(245,158,11,0.8)]">
-              {readyTime > 0 ? readyTime : 'เริ่ม!'}
+              {readyTime > 0 ? readyTime : 'เริ่ม'}
             </motion.div>
           </motion.div>
         )}
@@ -283,11 +315,11 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
             </motion.div>
 
             <div className="absolute inset-x-0 bottom-[5%] md:bottom-[8%] flex justify-between items-stretch px-2 sm:px-6 md:px-12 w-full">
-              <div className={`w-[45%] max-w-[450px] bg-gradient-to-br from-cyan-500/90 to-blue-600/90 backdrop-blur-xl border-4 rounded-[2rem] p-5 md:p-8 text-center transition-all duration-300 flex flex-col items-center justify-center min-h-[160px] md:min-h-[220px] ${lockedChoice === 'LEFT' ? 'border-white scale-110 shadow-[0_0_60px_rgba(6,182,212,0.8)] z-10' : 'border-white/50 shadow-2xl'} ${(lockedChoice && lockedChoice !== 'LEFT') ? 'opacity-30 scale-90' : ''}`}>
+              <div className={`w-[45%] max-w-[450px] bg-gradient-to-br from-cyan-500/90 to-blue-600/90 backdrop-blur-xl border-4 rounded-[2rem] p-5 md:p-8 text-center transition-all duration-300 flex flex-col items-center justify-center min-h-[160px] md:min-h-[220px] ${lockedChoice === 'LEFT' ? 'border-white scale-110 shadow-[0_0_60px_rgba(6,182,212,0.8)] z-10' : 'border-white/50 shadow-2xl'} ${(lockedChoice && lockedChoice !== 'LEFT') ? 'opacity-45 scale-95 grayscale' : ''}`}>
                 <span className="text-cyan-100 font-bold mb-3 md:mb-4 text-xs sm:text-sm bg-black/20 px-4 py-1.5 rounded-full uppercase tracking-wider shrink-0">ชูมือฝั่งซ้าย</span>
                 <span className="text-2xl sm:text-4xl md:text-5xl font-black text-white leading-tight drop-shadow-md text-balance">{qData.leftChoice}</span>
               </div>
-              <div className={`w-[45%] max-w-[450px] bg-gradient-to-br from-pink-500/90 to-rose-600/90 backdrop-blur-xl border-4 rounded-[2rem] p-5 md:p-8 text-center transition-all duration-300 flex flex-col items-center justify-center min-h-[160px] md:min-h-[220px] ${lockedChoice === 'RIGHT' ? 'border-white scale-110 shadow-[0_0_60px_rgba(244,63,94,0.8)] z-10' : 'border-white/50 shadow-2xl'} ${(lockedChoice && lockedChoice !== 'RIGHT') ? 'opacity-30 scale-90' : ''}`}>
+              <div className={`w-[45%] max-w-[450px] bg-gradient-to-br from-pink-500/90 to-rose-600/90 backdrop-blur-xl border-4 rounded-[2rem] p-5 md:p-8 text-center transition-all duration-300 flex flex-col items-center justify-center min-h-[160px] md:min-h-[220px] ${lockedChoice === 'RIGHT' ? 'border-white scale-110 shadow-[0_0_60px_rgba(244,63,94,0.8)] z-10' : 'border-white/50 shadow-2xl'} ${(lockedChoice && lockedChoice !== 'RIGHT') ? 'opacity-45 scale-95 grayscale' : ''}`}>
                 <span className="text-pink-100 font-bold mb-3 md:mb-4 text-xs sm:text-sm bg-black/20 px-4 py-1.5 rounded-full uppercase tracking-wider shrink-0">ชูมือฝั่งขวา</span>
                 <span className="text-2xl sm:text-4xl md:text-5xl font-black text-white leading-tight drop-shadow-md text-balance">{qData.rightChoice}</span>
               </div>

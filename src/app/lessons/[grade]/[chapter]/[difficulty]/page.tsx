@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { 
   FlaskConical, Lightbulb, ArrowLeft, Trophy, 
-  PlayCircle, Camera, Target, Gamepad2, Users, Hand, Timer, Activity, Brain, Focus 
+  PlayCircle, Camera, Target, Users, Hand, Timer, Activity, Brain, Focus 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,9 +12,16 @@ import CameraDetection from '@/components/CameraDetection';
 import TugOfWarCamera from '@/components/TugOfWarCamera';
 import { challengeData } from '@/data/challengeData';
 import { allQuestions } from '@/data/allQuestions';
+import { gameMusic } from '@/utils/gameMusic';
+import ConfettiCelebration from '@/components/ConfettiCelebration';
 
 // 📚 ฐานข้อมูลข้อสอบวิทยาศาสตร์
-const scienceQuizData: Record<string, any> = {
+interface ScienceQuestion {
+  q: string; choiceA: string; choiceB: string; choiceC: string; choiceD: string;
+  ans: 'A' | 'B' | 'C' | 'D'; explanation?: string;
+}
+type ScienceQuizDB = Record<string, Record<string, Record<string, ScienceQuestion[]>>>;
+const scienceQuizData: ScienceQuizDB = {
   p4: {
     chapter1: { 
       easy: [
@@ -51,7 +58,7 @@ export default function ScienceDynamicQuizPage() {
 
   const isChallenge = chapterOrChallenge.includes('challenge');
   
-  const questions: any[] = React.useMemo(() => {
+  const questions = React.useMemo(() => {
     const rawQuestions = isChallenge 
       ? challengeData[grade]?.[chapterOrChallenge]?.[difficulty] || []
       : (scienceQuizData[grade]?.[chapterOrChallenge]?.[difficulty] || 
@@ -87,9 +94,16 @@ export default function ScienceDynamicQuizPage() {
   }
 
   // 🟢 ฟังก์ชันจบเกม
-  const finishGame = (arg1?: any, arg2?: any) => {
+  const finishGame = (arg1?: number | { score?: number; leftScore?: number; left?: number; rightScore?: number; right?: number }, arg2?: number) => {
     if (isChallenge) {
-      setFinalScore(typeof arg1 === 'number' ? arg1 : (arg1?.score || 0));
+      const scoreVal = typeof arg1 === 'number' ? arg1 : (arg1?.score || 0);
+      setFinalScore(scoreVal);
+      const percentage = Math.round((scoreVal / questions.length) * 100);
+      if (percentage >= 50) {
+        gameMusic.playStageClearSound();
+      } else {
+        gameMusic.playStageFailSound();
+      }
     } else {
       let lScore = 0;
       let rScore = 0;
@@ -106,6 +120,12 @@ export default function ScienceDynamicQuizPage() {
 
       setLeftScore(lScore);
       setRightScore(rScore);
+
+      if (lScore > 0 || rScore > 0) {
+        gameMusic.playStageClearSound();
+      } else {
+        gameMusic.playStageFailSound();
+      }
     }
     
     setGameState('SUMMARY');
@@ -125,7 +145,7 @@ export default function ScienceDynamicQuizPage() {
             <Lightbulb size={40} className="text-amber-500 animate-pulse" /> เฉลยข้อสอบพร้อมคำอธิบาย
           </h1>
           <div className="space-y-8">
-            {questions.map((q: any, i: number) => (
+            {(questions as ScienceQuestion[]).map((q: ScienceQuestion, i: number) => (
               <div key={i} className="bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-6 md:p-8 rounded-[2.5rem] shadow-[6px_6px_0_0_#0F172A] dark:shadow-[6px_6px_0_0_#000000]">
                 <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6"><span className="text-emerald-500 dark:text-emerald-400 mr-2">ข้อที่ {i+1}:</span>{q.q}</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -137,7 +157,7 @@ export default function ScienceDynamicQuizPage() {
                           ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold' 
                           : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400'
                       }`}>
-                        <span className="font-black mr-1">{choice}.</span> {q[`choice${choice}`]}
+                        <span className="font-black mr-1">{choice}.</span> {q[`choice${choice}` as keyof ScienceQuestion]}
                       </div>
                     );
                   })}
@@ -262,13 +282,13 @@ export default function ScienceDynamicQuizPage() {
           </button>
 
           {isChallenge ? (
-            /* @ts-ignore */
+            /* @ts-expect-error - challengeData questions use a different shape */
             <SinglePlayerCamera questions={questions} onExit={finishGame} onFinish={finishGame} experimentName={expName} />
           ) : difficulty === 'hard' ? (
-            /* @ts-ignore */
+            /* @ts-expect-error - quiz questions used for tug-of-war */
             <TugOfWarCamera questions={questions} onFinish={finishGame} onExit={finishGame} experimentName={expName} />
           ) : (
-            /* @ts-ignore */
+            /* @ts-expect-error - quiz questions used for camera detection */
             <CameraDetection questions={questions} onFinish={finishGame} onExit={finishGame} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
           )}
         </>
@@ -278,6 +298,11 @@ export default function ScienceDynamicQuizPage() {
       <AnimatePresence>
         {gameState === 'SUMMARY' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md">
+            {isChallenge ? (
+              (finalScore / questions.length) >= 0.5 && <ConfettiCelebration />
+            ) : (
+              (leftScore > 0 || rightScore > 0) && <ConfettiCelebration />
+            )}
             
             {isChallenge ? (
               /* 🟢 3.1 สรุปคะแนน: แบบผู้เล่นคนเดียว (Challenge) */

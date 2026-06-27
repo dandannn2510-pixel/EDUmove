@@ -3,12 +3,18 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  MonitorPlay, Award, PlayCircle, ChevronRight, Gamepad2, X, PlaySquare,
-  BookOpen, CheckCircle2, Video, FileText
+  MonitorPlay, Award, PlayCircle, ChevronRight, Gamepad2,
+  BookOpen, Video
 } from 'lucide-react';
 import InteractiveVideoPlayer, { getInteractiveLessonData } from '@/components/InteractiveVideoPlayer';
 
-const chapterDetailsData: Record<string, Record<string, any>> = {
+interface ChapterDetail {
+  title: string;
+  summary: string;
+  concepts: string[];
+}
+
+const chapterDetailsData: Record<string, Record<string, ChapterDetail>> = {
   p4: {
     chapter1: { title: "จำนวนนับและการบวก ลบ", summary: "จำแนกและทำความเข้าใจจำนวนนับที่มีค่ามากกว่า 100,000", concepts: ["การอ่านและเขียนตัวเลขฮินดูอารบิกและไทย", "หลัก ค่าประจำหลัก และค่าของเลขโดด", "การเปรียบเทียบและเรียงลำดับจำนวน", "โจทย์ปัญหาการบวกและการลบ"] },
     chapter2: { title: "การคูณและการหาร", summary: "พัฒนาทักษะการคำนวณเลขหลายหลักอย่างเป็นระบบ", concepts: ["การคูณจำนวนหลายหลัก", "การหารยาวและการหารสั้น", "การหารเหลือเศษ", "การแก้โจทย์ปัญหาและการประมาณค่า"] },
@@ -49,8 +55,6 @@ export default function MathChapterPage() {
     summary: "ทบทวนเนื้อหาสำคัญและแนวคิดหลัก",
     concepts: ["สรุปนิยามและสูตรคำนวณ", "ตัวอย่างโจทย์ทีละขั้นตอน", "เทคนิคการคิดลัด"]
   };
-
-  const videoId = "M7lc1UVf-VE"; 
 
   const [isMounted, setIsMounted] = useState(false);
   const [viewState, setViewState] = useState<'TIMELINE' | 'VIDEO_DETAIL'>('TIMELINE');

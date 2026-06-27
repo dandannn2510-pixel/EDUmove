@@ -1,16 +1,21 @@
-import { allQuestions } from '@/data/allQuestions';
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  MonitorPlay, Award, PlayCircle, ChevronRight, Gamepad2, X, PlaySquare,
-  BookOpen, CheckCircle2, Video, FileText
+  MonitorPlay, Award, PlayCircle, ChevronRight, Gamepad2,
+  BookOpen, Video
 } from 'lucide-react';
 import InteractiveVideoPlayer, { getInteractiveLessonData } from '@/components/InteractiveVideoPlayer';
 
+interface ChapterDetail {
+  title: string;
+  summary: string;
+  concepts: string[];
+}
+
 // 📚 ฐานข้อมูลเนื้อหาวิชาวิทยาศาสตร์
-const chapterDetailsData: Record<string, Record<string, any>> = {
+const chapterDetailsData: Record<string, Record<string, ChapterDetail>> = {
   p4: {
     chapter1: { title: "สิ่งมีชีวิตรอบตัว", summary: "จำแนกสิ่งมีชีวิตออกเป็นกลุ่มพืช สัตว์ และที่ไม่ใช่พืชสัตว์", concepts: ["การจัดกลุ่มสิ่งมีชีวิต", "ความแตกต่างของพืชและสัตว์", "สิ่งมีชีวิตกลุ่มเห็ดรา"] },
     chapter2: { title: "แรงและพลังงาน", summary: "ความหมายของแรงโน้มถ่วงและการเคลื่อนที่ของวัตถุ", concepts: ["แรงโน้มถ่วงของโลก", "มวลและน้ำหนัก", "แรงต้านการเคลื่อนที่"] },
@@ -45,8 +50,6 @@ export default function ScienceChapterPage() {
     summary: "ทบทวนเนื้อหาสำคัญและแนวคิดหลักจากการทดลอง",
     concepts: ["สรุปนิยามและหลักการ", "ผลการทดลอง", "การประยุกต์ใช้"]
   };
-
-  const videoId = "M7lc1UVf-VE"; // ใส่รหัสคลิปวิชาวิทย์ที่นี่
 
   const [isMounted, setIsMounted] = useState(false);
   const [viewState, setViewState] = useState<'TIMELINE' | 'VIDEO_DETAIL'>('TIMELINE');

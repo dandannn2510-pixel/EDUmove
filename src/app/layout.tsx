@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import { Prompt } from "next/font/google";
 import "./globals.css";
 import Navbar from "../components/Navbar";
+import ScrollToTop from "../components/ScrollToTop";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -69,6 +70,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${prompt.variable} min-h-screen antialiased bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300`}
       >
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <ScrollToTop />
         <Navbar />
         <div className="h-20 w-full shrink-0" />
         {children}

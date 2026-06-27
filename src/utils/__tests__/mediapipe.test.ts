@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { getHandLandmarker, getFaceLandmarker } from '../mediapipe';
 
 // Mock the MediaPipe vision tasks library

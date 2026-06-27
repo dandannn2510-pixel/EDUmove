@@ -5,30 +5,11 @@ import { FaceLandmarker, HandLandmarker } from '@mediapipe/tasks-vision';
 import { getHandLandmarker, getFaceLandmarker } from '@/utils/mediapipe';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, XCircle, Trophy, AlertTriangle, Swords, HelpCircle } from 'lucide-react';
+import { gameMusic } from '@/utils/gameMusic';
 
 export interface QuizData {
   q: string; choiceA: string; choiceB: string; choiceC: string; choiceD: string; ans: 'A' | 'B' | 'C' | 'D';
 }
-
-// ─── Audio ────────────────────────────────────────────────────────────────────
-const playSignalSound = () => {
-  try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    const ctx = new AudioContext();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.type = 'square';
-    osc.frequency.setValueAtTime(600, ctx.currentTime);
-    gain.gain.setValueAtTime(1, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.5);
-  } catch {
-    console.log("Audio not supported");
-  }
-};
 
 // ─── ChoiceBox lifted to top-level to avoid remounting ───────────────────────
 interface ChoiceBoxProps {
@@ -89,8 +70,18 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
       .catch((err) => console.error('Failed to load FaceLandmarker:', err));
     getHandLandmarker(2, true)
       .then(setHandAI)
-      .catch((err) => console.error('Failed to load HandLandmarker:', err));
   }, []);
+
+  useEffect(() => {
+    if (status === 'ANSWERING') {
+      gameMusic.start();
+    } else {
+      gameMusic.stop();
+    }
+    return () => {
+      gameMusic.stop();
+    };
+  }, [status]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -99,13 +90,15 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
     }
     else if (status === 'COUNTDOWN') {
       if (readyTime > 0) {
+        gameMusic.playCountdownTickSound(false);
         timer = setTimeout(() => setReadyTime(prev => prev - 1), 1000);
       } else {
+        gameMusic.playCountdownTickSound(true);
         setStatus('RANDOM_DELAY');
         const delay = Math.floor(Math.random() * 2000) + 1000;
         setTimeout(() => {
           setStatus('GO_SIGNAL');
-          playSignalSound();
+          gameMusic.playCorrectSound();
         }, delay);
       }
     }
@@ -271,7 +264,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
         <h1 className="text-5xl md:text-7xl font-black mb-4">
           ผู้ชนะคือ <span className={winnerColor}>{winnerTeam}</span> 🎉
         </h1>
-        <p className="text-xl text-slate-500 dark:text-slate-400 mb-12 font-bold"> ขอแสดงความยินดีด้วย!</p>
+        <p className="text-xl text-slate-500 dark:text-slate-400 mb-12 font-bold"> ขอแสดงความยินดีด้วย</p>
         <button onClick={() => onFinish && onFinish(hp <= 0 ? 1 : 0, hp >= 100 ? 1 : 0)} className="px-12 py-4 bg-amber-300 hover:bg-amber-400 text-slate-900 border-4 border-slate-900 rounded-2xl font-black text-2xl transition-all shadow-[4px_4px_0_0_#0F172A] hover:scale-105 active:translate-y-1 active:shadow-none">
           กลับสู่หน้าหลัก
         </button>
@@ -317,15 +310,15 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
 
               <div className="bg-slate-50 dark:bg-slate-900 border-4 border-slate-900 p-6 sm:p-8 rounded-[2rem] mb-8 text-left w-full shadow-sm">
                 <p className="text-base sm:text-lg text-slate-700 dark:text-slate-300 font-bold leading-relaxed">
-                  ผู้เล่นทั้ง 2 ฝ่ายยืนหันหลังให้หน้าจอ เมื่อได้ยินเสียงสัญญาณ <b className="text-rose-500">&quot;บี๊บ!&quot;</b> ให้รีบหันกลับมาอย่างรวดเร็ว <br />
+                  ผู้เล่นทั้ง 2 ฝ่ายยืนหันหลังให้หน้าจอ เมื่อได้ยินเสียงสัญญาณ <b className="text-rose-500">&quot;บี๊บ&quot;</b> ให้รีบหันกลับมาอย่างรวดเร็ว <br />
                   ฝั่งที่หันมาได้เร็วกว่าจะมีสิทธิ์ตอบคำถาม หากตอบถูกจะดึงเชือกขยับหลอดพลังเข้าหาฝั่งตัวเอง <br />
-                  <span className="text-amber-500 font-black">ฝ่ายใดที่สามารถดึงเชือกดันหลอดพลังไปจนสุดฝั่งตรงข้ามได้สำเร็จ จะเป็นผู้ชนะในเกมนี้!</span>
+                  <span className="text-amber-500 font-black">ฝ่ายใดที่สามารถดึงเชือกดันหลอดพลังไปจนสุดฝั่งตรงข้ามได้สำเร็จ จะเป็นผู้ชนะในเกมนี้</span>
                 </p>
               </div>
 
               <button onClick={() => {
                 setStatus('WAIT_TURN_BACK');
-                try { const ctx = new (window.AudioContext || (window as any).webkitAudioContext)(); ctx.resume(); } catch { }
+                try { const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext; const ctx = new AudioCtx(); ctx.resume(); } catch { }
               }} className="px-12 py-4 bg-amber-300 hover:bg-amber-400 text-slate-900 border-4 border-slate-900 rounded-2xl font-black text-2xl shadow-[4px_4px_0_0_#0F172A] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2">
                 เข้าสู่สมรภูมิ
               </button>
@@ -361,7 +354,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
 
       {status === 'GO_SIGNAL' && (
         <div className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-white/20 backdrop-blur-sm">
-          <motion.h1 initial={{ scale: 0.5 }} animate={{ scale: 1.2 }} className="text-[9rem] font-black text-emerald-400 drop-shadow-[0_0_80px_rgba(16,185,129,1)]">หันได้!!!</motion.h1>
+          <motion.h1 initial={{ scale: 0.5 }} animate={{ scale: 1.2 }} className="text-[9rem] font-black text-emerald-400 drop-shadow-[0_0_80px_rgba(16,185,129,1)]">หันได้</motion.h1>
         </div>
       )}
 
@@ -373,7 +366,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
             {fastestPlayer === 'LEFT' ? <ChoiceGridContent /> : <QuestionBoxContent />}
             {status === 'ANSWERING' && fastestPlayer === 'LEFT' && (
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-cyan-500 text-white px-8 py-2 rounded-full font-black text-2xl shadow-[0_0_30px_rgba(6,182,212,0.8)] animate-pulse z-50 w-max">
-                ซ้ายได้สิทธิ์ตอบ! ({timeLeft} วิ)
+                ซ้ายได้สิทธิ์ตอบ ({timeLeft} วิ)
               </div>
             )}
           </div>
@@ -382,7 +375,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
             {fastestPlayer === 'RIGHT' ? <ChoiceGridContent /> : <QuestionBoxContent />}
             {status === 'ANSWERING' && fastestPlayer === 'RIGHT' && (
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-rose-500 text-white px-8 py-2 rounded-full font-black text-2xl shadow-[0_0_30px_rgba(244,63,94,0.8)] animate-pulse z-50 w-max">
-                ขวาได้สิทธิ์ตอบ! ({timeLeft} วิ)
+                ขวาได้สิทธิ์ตอบ ({timeLeft} วิ)
               </div>
             )}
           </div>
@@ -394,7 +387,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
           <div className={`px-12 py-6 rounded-[3rem] border-8 backdrop-blur-xl shadow-[0_0_100px_rgba(0,0,0,0.8)] flex flex-col items-center text-center ${lockedChoice === qData.ans ? 'bg-emerald-500/90 border-white' : 'bg-rose-600/90 border-white'}`}>
             {lockedChoice === qData.ans ? <CheckCircle2 size={80} className="text-white mb-2" /> : <XCircle size={80} className="text-white mb-2" />}
             <h1 className="text-5xl font-black text-white drop-shadow-md">
-              {lockedChoice === qData.ans ? 'ตอบถูก!' : 'ตอบผิดพลาด!'}
+              {lockedChoice === qData.ans ? 'ตอบถูก' : 'ตอบผิดพลาด'}
             </h1>
           </div>
         </motion.div>

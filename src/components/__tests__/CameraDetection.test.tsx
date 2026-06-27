@@ -12,9 +12,13 @@ jest.mock('@/utils/mediapipe', () => ({
 
 // Mock react-webcam
 jest.mock('react-webcam', () => {
-  return React.forwardRef((props: any, ref: any) => {
-    return <video data-testid="webcam" {...props} />;
-  });
+  const MockWebcam = React.forwardRef<HTMLVideoElement, React.VideoHTMLAttributes<HTMLVideoElement>>(
+    function MockWebcam(props, ref) {
+      return <video data-testid="webcam" ref={ref} {...props} />;
+    }
+  );
+  MockWebcam.displayName = 'MockWebcam';
+  return MockWebcam;
 });
 
 const mockQuestions = [

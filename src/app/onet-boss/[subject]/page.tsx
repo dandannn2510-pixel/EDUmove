@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, Zap, Trophy, AlertTriangle, Lightbulb, Target, Brain, Sparkles, Gift, Crosshair, Heart, Swords, Flame } from 'lucide-react';
+import { gameMusic } from '@/utils/gameMusic';
+import ConfettiCelebration from '@/components/ConfettiCelebration';
 
 export interface OnetQuestion {
   q: string;
@@ -17,8 +19,8 @@ export interface OnetQuestion {
 
 const playSignalSound = () => {
   try {
-    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
-    const ctx = new AudioContext();
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const ctx = new AudioCtx();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain); gain.connect(ctx.destination);
@@ -50,7 +52,8 @@ export default function OnetFinalBossRaidPage() {
   const [raidResult, setRaidResult] = useState<'WIN' | 'LOSE' | null>(null);
 
   const [correctStreak, setCorrectStreak] = useState(0);
-  const [chestRewards, setChestRewards] = useState<any[]>([]);
+  type ChestReward = { type: string; val: number; icon: React.ReactNode; text: string; color: string; };
+  const [chestRewards, setChestRewards] = useState<ChestReward[]>([]);
   const [openedChestIndex, setOpenedChestIndex] = useState<number | null>(null);
 
   const [analytics, setAnalytics] = useState({
@@ -194,6 +197,7 @@ export default function OnetFinalBossRaidPage() {
         if (nextShield <= 0) {
           setRaidResult('LOSE');
           setStatus('SUMMARY');
+          gameMusic.playStageFailSound();
         } else {
           goToNextQuestion();
         }
@@ -204,6 +208,7 @@ export default function OnetFinalBossRaidPage() {
   const handleBossDefeated = () => {
     if (currentPart < 4) {
       setStatus('STAGE_CLEAR');
+      gameMusic.playStageClearSound();
       setTimeout(() => {
         setCurrentPart((prev) => (prev + 1) as 1|2|3|4);
         setCurrentQ(0);
@@ -217,6 +222,7 @@ export default function OnetFinalBossRaidPage() {
     } else {
       setRaidResult('WIN');
       setStatus('SUMMARY');
+      gameMusic.playStageClearSound();
     }
   };
 
@@ -231,9 +237,9 @@ export default function OnetFinalBossRaidPage() {
 
   const setupBonusChests = () => {
     const rewards = [
-      { type: 'HEAL', value: 30, text: 'ฟื้นฟูโล่ 30 หน่วย', icon: <Heart className="text-pink-500" size={40}/>, color: 'text-pink-400' },
-      { type: 'DAMAGE', value: damagePerHit * 2, text: `ดาเมจคูณสอง -${damagePerHit * 2}%`, icon: <Crosshair className="text-amber-500" size={40}/>, color: 'text-amber-400' },
-      { type: 'HEAL_MAX', value: 50, text: 'ซูเปอร์ชิลด์ +50 หน่วย', icon: <Shield className="text-cyan-500" size={40}/>, color: 'text-cyan-400' },
+      { type: 'HEAL', val: 30, text: 'ฟื้นฟูโล่ 30 หน่วย', icon: <Heart className="text-pink-500" size={40}/>, color: 'text-pink-400' },
+      { type: 'DAMAGE', val: damagePerHit * 2, text: `ดาเมจคูณสอง -${damagePerHit * 2}%`, icon: <Crosshair className="text-amber-500" size={40}/>, color: 'text-amber-400' },
+      { type: 'HEAL_MAX', val: 50, text: 'ซูเปอร์ชิลด์ +50 หน่วย', icon: <Shield className="text-cyan-500" size={40}/>, color: 'text-cyan-400' },
     ];
     setChestRewards(rewards.sort(() => Math.random() - 0.5));
     setOpenedChestIndex(null);
@@ -248,10 +254,10 @@ export default function OnetFinalBossRaidPage() {
     
     setTimeout(() => {
       if (reward.type.includes('HEAL')) {
-        setPlayerShield(prev => Math.min(100, prev + reward.value));
+        setPlayerShield(prev => Math.min(100, prev + reward.val));
         setTimeout(() => goToNextQuestion(), 2000);
       } else if (reward.type === 'DAMAGE') {
-        const nextHp = Math.max(0, bossHp - reward.value);
+        const nextHp = Math.max(0, bossHp - reward.val);
         setBossHp(nextHp);
         if (nextHp <= 0) {
           handleBossDefeated();
@@ -311,6 +317,7 @@ export default function OnetFinalBossRaidPage() {
       <AnimatePresence>
         {status === 'STAGE_CLEAR' && (
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -50 }} className="absolute inset-0 bg-emerald-950/90 z-50 flex flex-col items-center justify-center backdrop-blur-md">
+            <ConfettiCelebration />
             <Swords size={120} className="text-emerald-400 mb-6 drop-shadow-[0_0_30px_rgba(52,211,153,0.8)] animate-bounce" />
             <h1 className="text-5xl md:text-7xl font-black text-white mb-4">STAGE {currentPart} CLEAR!</h1>
             <p className="text-2xl text-emerald-300 font-bold">กำจัดบอสสำเร็จ... เตรียมตัวรับมือบอสตัวต่อไป!</p>
@@ -361,7 +368,8 @@ export default function OnetFinalBossRaidPage() {
 
           <div className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 h-auto">
             {['A', 'B', 'C', 'D'].map((choice) => {
-              const text = (qData as any)[`choice${choice}`];
+              const choiceKey = `choice${choice}` as keyof OnetQuestion;
+              const text = qData?.[choiceKey] as string;
               const isChoiceLocked = lockedChoice === choice;
               const isCorrectAns = qData?.ans === choice;
               
@@ -472,6 +480,7 @@ export default function OnetFinalBossRaidPage() {
       <AnimatePresence>
         {status === 'SUMMARY' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-slate-950/98 z-50 flex flex-col items-center justify-center p-6 overflow-y-auto">
+            {raidResult === 'WIN' && <ConfettiCelebration />}
             <Trophy size={80} className="text-amber-400 mb-4 drop-shadow-[0_0_20px_rgba(245,158,11,0.5)]" />
             <h1 className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-amber-200 to-yellow-400 mb-2">
               {raidResult === 'WIN' ? 'สุดยอด! เคลียร์บอสครบทั้ง 4 ด่าน! 🎉' : 'โล่พลังงานหมดสภาพลงก่อนสำเร็จ 🚧'}

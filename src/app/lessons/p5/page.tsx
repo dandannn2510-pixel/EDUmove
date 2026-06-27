@@ -1,7 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Globe, Volume2, Beaker, Orbit, Mountain, Wind, Star, ChevronRight, PlayCircle, Zap } from 'lucide-react';
+import { Globe, Volume2, Beaker, Orbit, Mountain, Wind, Star, ChevronRight, PlayCircle } from 'lucide-react';
 
 export default function Grade5Science() {
   const [isMounted, setIsMounted] = useState(false);

@@ -4,16 +4,24 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AlertCircle, Lightbulb, ArrowLeft, CheckCircle2, Info, Trophy, 
-  PlayCircle, Camera, Target, Gamepad2, Users, Hand, Timer, Activity, Brain, Focus 
+  PlayCircle, Camera, Target, Users, Hand, Timer, Activity, Brain, Focus 
 } from 'lucide-react';
 
-import SinglePlayerCamera from '@/components/SinglePlayerCamera';
+import SinglePlayerCamera, { SingleQuestionData } from '@/components/SinglePlayerCamera';
 import CameraDetection from '@/components/CameraDetection';
 import TugOfWarCamera from '@/components/TugOfWarCamera';
 import { mathChallengeData } from '@/data/mathChallengeData';
+import { gameMusic } from '@/utils/gameMusic';
+import ConfettiCelebration from '@/components/ConfettiCelebration';
 
 // 📚 ฐานข้อมูลข้อสอบคณิตศาสตร์ (จัดเต็ม ป.4 - ป.6)
-const mathQuizData: Record<string, any> = {
+interface MathQuestion {
+  q: string; choiceA: string; choiceB: string; choiceC: string; choiceD: string;
+  ans: 'A' | 'B' | 'C' | 'D'; explanation?: string;
+}
+interface InstructionStep { icon: React.ReactNode; title: string; desc: string; }
+type MathQuizDB = Record<string, Record<string, Record<string, MathQuestion[]>>>;
+const mathQuizData: MathQuizDB = {
   p4: {
     chapter1: { 
       easy: [
@@ -346,14 +354,21 @@ export default function MathDynamicQuizPage() {
 
   const isChallenge = chapterOrChallenge.includes('challenge');
   
-  // 🚀 ใส่ as any[] เพื่อบอก TypeScript ไม่ต้องตกใจเรื่อง Type ซ้อนทับ
-  const questions: any[] = isChallenge 
+  // 🚀 คือ: questions ถูก infer เป็น MathQuestion[]
+  const questions = isChallenge 
     ? mathChallengeData[level]?.[chapterOrChallenge]?.[difficulty] || []
     : mathQuizData[level]?.[chapterOrChallenge]?.[difficulty] || [];
 
-  const finishGame = (arg1?: any, arg2?: any) => {
+  const finishGame = (arg1?: number | { score?: number; leftScore?: number; left?: number; rightScore?: number; right?: number }, arg2?: number) => {
     if (isChallenge) {
-      setFinalScore(typeof arg1 === 'number' ? arg1 : (arg1?.score || 0));
+      const scoreVal = typeof arg1 === 'number' ? arg1 : (arg1?.score || 0);
+      setFinalScore(scoreVal);
+      const percentage = Math.round((scoreVal / questions.length) * 100);
+      if (percentage >= 50) {
+        gameMusic.playStageClearSound();
+      } else {
+        gameMusic.playStageFailSound();
+      }
     } else {
       let lScore = 0;
       let rScore = 0;
@@ -370,6 +385,12 @@ export default function MathDynamicQuizPage() {
 
       setLeftScore(lScore);
       setRightScore(rScore);
+
+      if (lScore > 0 || rScore > 0) {
+        gameMusic.playStageClearSound();
+      } else {
+        gameMusic.playStageFailSound();
+      }
     }
     
     setGameState('SUMMARY');
@@ -412,30 +433,36 @@ export default function MathDynamicQuizPage() {
           </p>
 
           <div className="space-y-8">
-            {questions.map((q: any, i: number) => (
+            {(questions as (MathQuestion | SingleQuestionData)[]).map((q: MathQuestion | SingleQuestionData, i: number) => (
               <div key={i} className="bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-6 md:p-8 rounded-[2.5rem] shadow-[6px_6px_0_0_#0F172A] dark:shadow-[6px_6px_0_0_#000000] relative overflow-hidden">
                 <div className="absolute top-0 right-0 bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 font-black text-6xl opacity-30 p-4 rounded-bl-[3rem] pointer-events-none">{i + 1}</div>
                 <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6 leading-relaxed relative z-10"><span className="text-fuchsia-500 dark:text-fuchsia-400 mr-2">Q:</span>{q.q}</h2>
                 
-                {isChallenge ? (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
-                    <div className={`p-4 md:p-6 rounded-2xl border-4 flex justify-between items-center transition-all ${q.ans === 'LEFT' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-400'}`}><span>👈 ซ้าย: {q.leftChoice}</span>{q.ans === 'LEFT' && <CheckCircle2 size={24} />}</div>
-                    <div className={`p-4 md:p-6 rounded-2xl border-4 flex justify-between items-center transition-all ${q.ans === 'RIGHT' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-400'}`}><span>ขวา: {q.rightChoice} 👉</span>{q.ans === 'RIGHT' && <CheckCircle2 size={24} />}</div>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
-                    {['A', 'B', 'C', 'D'].map(choice => (
-                      <div key={choice} className={`p-4 rounded-2xl border-4 flex justify-between items-center transition-all ${q.ans === choice ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-400'}`}>
-                        <span>{choice}. {q[`choice${choice}`]}</span>{q.ans === choice && <CheckCircle2 size={24} />}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {isChallenge ? (() => {
+                  const cq = q as unknown as SingleQuestionData;
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                      <div className={`p-4 md:p-6 rounded-2xl border-4 flex justify-between items-center transition-all ${cq.ans === 'LEFT' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-400'}`}><span>👈 ซ้าย: {cq.leftChoice}</span>{cq.ans === 'LEFT' && <CheckCircle2 size={24} />}</div>
+                      <div className={`p-4 md:p-6 rounded-2xl border-4 flex justify-between items-center transition-all ${cq.ans === 'RIGHT' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-400'}`}><span>ขวา: {cq.rightChoice} 👉</span>{cq.ans === 'RIGHT' && <CheckCircle2 size={24} />}</div>
+                    </div>
+                  );
+                })() : (() => {
+                  const mq = q as unknown as MathQuestion;
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 relative z-10">
+                      {['A', 'B', 'C', 'D'].map(choice => (
+                        <div key={choice} className={`p-4 rounded-2xl border-4 flex justify-between items-center transition-all ${mq.ans === choice ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-400'}`}>
+                          <span>{choice}. {mq[`choice${choice}` as keyof MathQuestion]}</span>{mq.ans === choice && <CheckCircle2 size={24} />}
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
 
-                {q.explanation && (
+                {('explanation' in q && q.explanation) && (
                   <div className="mt-6 p-5 bg-blue-50 dark:bg-slate-900/50 border-2 border-slate-900 dark:border-slate-700 rounded-2xl flex gap-4 items-start relative z-10 text-slate-700 dark:text-slate-300">
                     <div className="bg-indigo-100 dark:bg-slate-700 p-2 rounded-full text-indigo-600 dark:text-indigo-400 shrink-0"><Info size={24} /></div>
-                    <div><h4 className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-wider mb-1">คำอธิบายเฉลย</h4><p className="font-medium text-base leading-relaxed">{q.explanation}</p></div>
+                    <div><h4 className="text-slate-900 dark:text-white font-black text-sm uppercase tracking-wider mb-1">คำอธิบายเฉลย</h4><p className="font-medium text-base leading-relaxed">{(q as MathQuestion).explanation}</p></div>
                   </div>
                 )}
               </div>
@@ -450,7 +477,7 @@ export default function MathDynamicQuizPage() {
   let expName = "";
   let ruleTitle = "";
   let icon = null;
-  let instructionsList: any[] = [];
+  let instructionsList: InstructionStep[] = [];
 
   if (isChallenge) {
     const term = chapterOrChallenge === 'challenge1' ? '1' : '2';
@@ -552,13 +579,13 @@ export default function MathDynamicQuizPage() {
           </button>
 
           {isChallenge ? (
-            /* @ts-ignore */
+            /* @ts-expect-error - challengeData questions use a different shape */
             <SinglePlayerCamera questions={questions} onExit={() => router.back()} onFinish={finishGame} experimentName={expName} />
           ) : difficulty === 'hard' ? (
-            /* @ts-ignore */
+            /* @ts-expect-error - quiz questions used for tug-of-war */
             <TugOfWarCamera questions={questions} onFinish={finishGame} onExit={() => router.back()} experimentName={expName} />
           ) : (
-            /* @ts-ignore */
+            /* @ts-expect-error - quiz questions used for camera detection */
             <CameraDetection questions={questions} onFinish={finishGame} onSkip={() => router.back()} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
           )}
         </>
@@ -568,6 +595,11 @@ export default function MathDynamicQuizPage() {
       <AnimatePresence>
         {gameState === 'SUMMARY' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-[200] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-md">
+            {isChallenge ? (
+              (finalScore / questions.length) >= 0.5 && <ConfettiCelebration />
+            ) : (
+              (leftScore > 0 || rightScore > 0) && <ConfettiCelebration />
+            )}
             
             {isChallenge ? (
               /* 🟢 3.1 สรุปคะแนน: แบบผู้เล่นคนเดียว (Challenge) */

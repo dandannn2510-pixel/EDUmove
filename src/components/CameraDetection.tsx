@@ -6,6 +6,7 @@ import { HandLandmarker } from '@mediapipe/tasks-vision';
 import { useGameStore } from '@/store/gameStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Hand, FastForward, Lightbulb, Sparkles } from 'lucide-react';
+import { gameMusic } from '@/utils/gameMusic';
 
 export interface QuestionData {
   q: string; choiceA: string; choiceB: string; choiceC: string; choiceD: string; ans: 'A' | 'B' | 'C' | 'D';
@@ -32,7 +33,7 @@ const ChoiceBox = memo(function ChoiceBox({ choice, text, lockedState, positioni
   const isFaded = lockedState !== null && lockedState !== choice;
   return (
     <div className={`absolute ${positioning} w-[23%] p-2 sm:p-4 rounded-xl sm:rounded-[2rem] border sm:border-4 text-center transition-all duration-300 z-20 overflow-hidden
-      ${isLocked ? colorMap[color] + ' scale-105 z-30 ring-2 ring-white text-white font-bold' : `bg-slate-900/90 border-slate-600 text-slate-100 ${isFaded ? 'opacity-10 scale-95 pointer-events-none' : 'opacity-100'}`}
+      ${isLocked ? colorMap[color] + ' scale-105 z-30 ring-2 ring-white text-white font-bold' : `bg-slate-900/90 border-slate-600 text-slate-100 ${isFaded ? 'opacity-45 scale-95 text-slate-400 bg-slate-900/60 border-slate-700/50 grayscale pointer-events-none' : 'opacity-100'}`}
     `}>
       <div className="text-[8px] sm:text-xs font-black opacity-60 uppercase">ข้อ {choice}</div>
       <div className="text-[11px] sm:text-lg md:text-xl lg:text-2xl font-black leading-tight break-words line-clamp-2">{text}</div>
@@ -75,6 +76,17 @@ export default function CameraDetection({
   }, []);
 
   useEffect(() => {
+    if (status === 'PLAYING') {
+      gameMusic.start();
+    } else {
+      gameMusic.stop();
+    }
+    return () => {
+      gameMusic.stop();
+    };
+  }, [status]);
+
+  useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === 'SHOW_TITLE') {
       timer = setTimeout(() => {
@@ -83,8 +95,10 @@ export default function CameraDetection({
     } 
     else if (status === 'READY') {
       if (readyTime > 0) {
+        gameMusic.playCountdownTickSound(false);
         timer = setTimeout(() => setReadyTime(prev => prev - 1), 1000);
       } else {
+        gameMusic.playCountdownTickSound(true);
         setStatus('PLAYING'); setTimeLeft(10);
         setLockedA(null); setLockedB(null);
         holdFramesRef.current = { teamA: { A: 0, B: 0, C: 0, D: 0 }, teamB: { A: 0, B: 0, C: 0, D: 0 } };
@@ -94,6 +108,7 @@ export default function CameraDetection({
       if (timeLeft > 0) {
         timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
       } else {
+        gameMusic.playTimeoutSound();
         calculateResults();
       }
     }
@@ -183,8 +198,8 @@ export default function CameraDetection({
 
   const calculateResults = () => {
     setStatus('RESULT');
-    if (lockedA === currentQ.ans) addLeftScore(100);
-    if (lockedB === currentQ.ans) addRightScore(100);
+    if (lockedA === currentQ.ans) addLeftScore(1);
+    if (lockedB === currentQ.ans) addRightScore(1);
     
     setTimeout(() => {
       if (currentIndex < questions.length - 1) {
@@ -206,7 +221,7 @@ export default function CameraDetection({
           <div className="bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-black px-4 py-1.5 rounded-full border-2 border-slate-900 mb-6 text-xs sm:text-sm">โหมด 4 ตัวเลือก (A, B, C, D)</div>
           <div className="w-full bg-slate-50 dark:bg-slate-900 rounded-2xl p-4 text-left mb-8 border-4 border-slate-900 shadow-sm flex items-start gap-3">
             <div className="bg-emerald-100 dark:bg-emerald-950/50 p-2.5 rounded-xl text-emerald-600 dark:text-emerald-400 border-2 border-slate-900 shrink-0"><Hand size={20}/></div>
-            <p className="text-xs sm:text-base text-slate-700 dark:text-slate-300 font-bold leading-relaxed">ชูมือไปยัง <strong className="text-emerald-600 dark:text-emerald-400 font-black">สีของข้อที่ต้องการ</strong> ค้างไว้ 1 วินาทีเพื่อล็อคคำตอบ หากเปลี่ยนใจสามารถย้ายมือได้ก่อนหมดเวลา!</p>
+            <p className="text-xs sm:text-base text-slate-700 dark:text-slate-300 font-bold leading-relaxed">ชูมือไปยัง <strong className="text-emerald-600 dark:text-emerald-400 font-black">สีของข้อที่ต้องการ</strong> ค้างไว้ 1 วินาทีเพื่อล็อคคำตอบ หากเปลี่ยนใจสามารถย้ายมือได้ก่อนหมดเวลา</p>
           </div>
           <div className="flex flex-col items-center gap-4 w-full">
             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => { setStatus('SHOW_TITLE'); }} className="px-8 sm:px-12 py-3.5 sm:py-4 rounded-2xl font-black text-lg sm:text-xl text-slate-900 bg-amber-300 border-4 border-slate-900 shadow-[4px_4px_0_0_#0F172A] active:translate-y-1 active:shadow-none transition-all flex items-center gap-2"><Play size={24} /> เปิดกล้องเริ่มเกม</motion.button>
@@ -262,7 +277,7 @@ export default function CameraDetection({
               exit={{ scale: 1.5, opacity: 0 }} 
               className="text-7xl sm:text-[10rem] font-black text-amber-400 drop-shadow-[0_0_40px_rgba(245,158,11,0.8)]"
             >
-              {readyTime > 0 ? readyTime : 'GO!'}
+              {readyTime > 0 ? readyTime : 'GO'}
             </motion.div>
           </motion.div>
         )}
@@ -299,10 +314,10 @@ export default function CameraDetection({
         {status === 'RESULT' && (
           <div className="absolute inset-0 z-40 flex pointer-events-none">
             <div className={`w-1/2 h-full flex flex-col items-center justify-center ${lockedA === currentQ.ans ? 'bg-emerald-500/50' : 'bg-red-600/50'} backdrop-blur-sm`}>
-              <h2 className="text-xl sm:text-4xl font-black text-white drop-shadow-md">{lockedA === currentQ.ans ? 'ถูกต้อง! 🎉' : 'ผิดพลาด ❌'}</h2>
+              <h2 className="text-xl sm:text-4xl font-black text-white drop-shadow-md">{lockedA === currentQ.ans ? 'ถูกต้อง 🎉' : 'ผิดพลาด ❌'}</h2>
             </div>
             <div className={`w-1/2 h-full flex flex-col items-center justify-center ${lockedB === currentQ.ans ? 'bg-emerald-500/50' : 'bg-red-600/50'} backdrop-blur-sm`}>
-              <h2 className="text-xl sm:text-4xl font-black text-white drop-shadow-md">{lockedB === currentQ.ans ? 'ถูกต้อง! 🎉' : 'ผิดพลาด ❌'}</h2>
+              <h2 className="text-xl sm:text-4xl font-black text-white drop-shadow-md">{lockedB === currentQ.ans ? 'ถูกต้อง 🎉' : 'ผิดพลาด ❌'}</h2>
             </div>
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-6 py-4 rounded-2xl font-black text-xs sm:text-xl shadow-2xl text-center w-[85%] max-w-2xl border-4 border-slate-200">
               <div className="text-[10px] text-slate-500 uppercase">เฉลยข้อที่ถูกต้องคือ</div>

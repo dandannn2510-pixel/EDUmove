@@ -1,8 +1,10 @@
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Map, Home, Star, Lock, ArrowRight } from 'lucide-react';
+import { Map, Home, Star, Lock, ArrowRight, AlertTriangle } from 'lucide-react';
+import { gameMusic } from '@/utils/gameMusic';
+import ConfettiCelebration from '@/components/ConfettiCelebration';
 
 // 🟢 คลังโจทย์ 30 ข้อ แบ่ง 3 ระดับความยาก
 const scienceQuestions = [
@@ -47,6 +49,18 @@ export default function ScienceOnetBoss() {
   const [gameState, setGameState] = useState<'START' | 'MAP' | 'PLAYING'>('START');
   const [completedStages, setCompletedStages] = useState<number[]>([]);
   const [stage, setStage] = useState(1);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('edumove_onet_completed_stages_science');
+    if (saved) {
+      try {
+        setCompletedStages(JSON.parse(saved));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, []);
   const maxStages = 10; 
   const [playerHp, setPlayerHp] = useState(100);
   const [bossMaxHp, setBossMaxHp] = useState(100);
@@ -59,11 +73,27 @@ export default function ScienceOnetBoss() {
   const [textAnswer, setTextAnswer] = useState('');
   
   const [isGachaActive, setIsGachaActive] = useState(false);
-  const [gachaResult, setGachaResult] = useState<any>(null);
+  type GachaResult = { index: number; type: string; val: number; icon: string; name: string; text: string; color: string } | null;
+  const [gachaResult, setGachaResult] = useState<GachaResult>(null);
   const [showStageClear, setShowStageClear] = useState(false);
   const [showGameOver, setShowGameOver] = useState(false);
   const [bossHit, setBossHit] = useState(false);
   const [playerHit, setPlayerHit] = useState(false);
+
+  useEffect(() => {
+    if (gameState === 'PLAYING') {
+      gameMusic.start();
+    } else {
+      gameMusic.stop();
+    }
+    try {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTo(0, 0);
+    } catch {}
+    return () => {
+      gameMusic.stop();
+    };
+  }, [gameState]);
 
   // 🟢 คำนวณระดับความยากตาม Stage
   const currentPool = useMemo(() => {
@@ -84,7 +114,7 @@ export default function ScienceOnetBoss() {
     setBossMaxHp(newBossHp); setBossHp(newBossHp);
     setCombo(0); setCurrentQ(0); setTextAnswer('');
     setShowStageClear(false); setShowGameOver(false);
-    setActionLog(`🚀 ลุยด่านที่ ${selectedStage}!`); setLogColor('text-blue-600 dark:text-blue-400');
+    setActionLog(`🚀 ลุยด่านที่ ${selectedStage}`); setLogColor('text-blue-600 dark:text-blue-400');
     setGameState('PLAYING');
   };
 
@@ -99,24 +129,46 @@ export default function ScienceOnetBoss() {
     
     setTimeout(() => {
       setMessage(''); setTextAnswer('');
-      if (newP <= 0) { setShowGameOver(true); return; }
+      if (newP <= 0) {
+        setShowGameOver(true);
+        gameMusic.playStageFailSound();
+        return;
+      }
       if (newB <= 0) { 
-        if (!completedStages.includes(stage)) setCompletedStages([...completedStages, stage]);
-        setShowStageClear(true); return; 
+        if (!completedStages.includes(stage)) {
+          const updated = [...completedStages, stage];
+          setCompletedStages(updated);
+          localStorage.setItem('edumove_onet_completed_stages_science', JSON.stringify(updated));
+        }
+        setShowStageClear(true);
+        gameMusic.playStageClearSound();
+        return; 
       }
       setCurrentQ((prev) => (prev + 1) % currentPool.length);
     }, 1200);
+  };
+
+  const handleResetProgress = () => {
+    setCompletedStages([]);
+    localStorage.removeItem('edumove_onet_completed_stages_science');
+    setStage(1);
+    setShowResetConfirm(false);
   };
 
   const handleAnswerSubmit = (choiceOrText: string) => {
     if (message !== '' || isGachaActive || showStageClear || showGameOver) return;
     const isCorrect = currentData.type === 'choice' ? choiceOrText.startsWith(currentData.ans) : choiceOrText.trim() === currentData.ans;
     if (isCorrect) {
+      gameMusic.playCorrectSound();
       const newCombo = combo + 1;
       const baseDmg = Math.ceil(bossMaxHp / 4);
       if (newCombo === 3) { setCombo(0); setIsGachaActive(true); } 
-      else { setCombo(newCombo); processTurn(baseDmg, 0, `✅ ถูกต้อง! โจมตี -${baseDmg} HP`, 'text-emerald-600 dark:text-emerald-400'); }
-    } else { setCombo(0); processTurn(0, -25, '❌ ผิดพลาด! โดนโจมตี -25 HP', 'text-rose-600 dark:text-rose-400'); }
+      else { setCombo(newCombo); processTurn(baseDmg, 0, `✅ ถูกต้อง โจมตี -${baseDmg} HP`, 'text-emerald-600 dark:text-emerald-400'); }
+    } else { 
+      gameMusic.playIncorrectSound();
+      setCombo(0); 
+      processTurn(0, -25, '❌ ผิดพลาด โดนโจมตี -25 HP', 'text-rose-600 dark:text-rose-400'); 
+    }
   };
 
   const handleGachaSelect = (index: number) => {
@@ -131,7 +183,7 @@ export default function ScienceOnetBoss() {
     setTimeout(() => {
       setIsGachaActive(false); setGachaResult(null);
       if (result.type === 'HEAL') processTurn(baseDmg, result.val, `🎁 ได้รับ ${result.name} ${result.text}`, 'text-emerald-600 dark:text-emerald-400');
-      else processTurn(result.val, 0, `💥 ${result.name} -${result.val}!`, 'text-blue-600 dark:text-blue-400');
+      else processTurn(result.val, 0, `💥 ${result.name} -${result.val}`, 'text-blue-600 dark:text-blue-400');
     }, 2500);
   };
 
@@ -247,8 +299,8 @@ export default function ScienceOnetBoss() {
               🧬
             </motion.div>
             
-            <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 flex flex-col md:flex-row items-center gap-3">
-              <span>ไปกับ</span> <span className="text-blue-500 text-5xl md:text-6xl">edumove</span>
+            <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-4 flex flex-col md:flex-row items-center gap-3 justify-center">
+              <span className="whitespace-nowrap shrink-0" style={{ whiteSpace: 'nowrap' }}>ไปกับ</span> <span className="text-blue-500 text-5xl md:text-6xl whitespace-nowrap shrink-0" style={{ whiteSpace: 'nowrap' }}>edumove</span>
             </h1>
             
             <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 mb-10 font-medium leading-relaxed">
@@ -275,7 +327,12 @@ export default function ScienceOnetBoss() {
           <div className="w-full bg-white dark:bg-[#1e293b] border-b-4 border-slate-900 dark:border-slate-700 p-4 md:p-5 flex justify-between items-center z-50 shrink-0">
             <Link href="/grade/p6" className="neo-btn-white p-2.5 rounded-full"><Home size={20} /></Link>
             <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">แผนที่วิทยาศาสตร์ 🗺️</h2>
-            <div className="w-10"></div>
+            <button 
+              onClick={() => setShowResetConfirm(true)} 
+              className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-black rounded-xl border-3 border-slate-900 shadow-[2px_2px_0_#0f172a] text-xs md:text-sm transition-transform active:translate-y-0.5"
+            >
+              🔄 รีเซ็ตด่าน
+            </button>
           </div>
           
           <div className="flex-1 w-full overflow-x-auto hide-scroll flex items-center px-10 md:px-32">
@@ -404,17 +461,49 @@ export default function ScienceOnetBoss() {
       <AnimatePresence>
       {(showStageClear || showGameOver) && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="fixed inset-0 z-[300] flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm px-4 text-center">
-          <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="neo-card p-10 max-w-sm w-full">
+          {showStageClear && <ConfettiCelebration />}
+          <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="neo-card p-10 max-w-sm w-full relative z-[310]">
             <div className="text-6xl mb-4">{showStageClear ? '🏆' : '💀'}</div>
             <h2 className={`text-3xl font-black mb-2 uppercase ${showStageClear ? 'text-emerald-500' : 'text-rose-500'}`}>{showStageClear ? `ด่าน ${stage} เคลียร์!` : 'พ่ายแพ้!'}</h2>
             <p className="text-slate-600 dark:text-slate-400 mb-8 font-bold">{showStageClear ? 'เก่งมาก ไปลุยกันต่อเลย' : `คุณพลาดในด่านที่ ${stage}`}</p>
             <div className="flex flex-col gap-3">
               {showStageClear && stage < maxStages && <button onClick={() => initStage(stage + 1)} className="w-full neo-btn-blue py-4 font-black text-lg">ด่านต่อไป ➡️</button>}
-              <button onClick={() => setGameState('MAP')} className="w-full neo-btn-white py-4 font-black text-lg">🗺️ กลับหน้าแผนที่</button>
+              <button onClick={() => { setGameState('MAP'); setShowStageClear(false); setShowGameOver(false); }} className="w-full neo-btn-white py-4 font-black text-lg">🗺️ กลับหน้าแผนที่</button>
             </div>
           </motion.div>
         </motion.div>
       )}
+      </AnimatePresence>
+
+      {/* 🔄 กล่องข้อความยืนยันการรีเซ็ตด่าน */}
+      <AnimatePresence>
+        {showResetConfirm && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[400] flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-sm px-4 text-center">
+            <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }} className="neo-card p-8 md:p-10 max-w-md w-full relative z-[410] bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700">
+              <div className="w-16 h-16 bg-rose-100 dark:bg-rose-950/50 rounded-full border-4 border-rose-500 flex items-center justify-center text-rose-500 mx-auto mb-6">
+                <AlertTriangle size={32} />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-3">ต้องการรีเซ็ตใช่หรือไม่?</h2>
+              <p className="text-rose-500 font-bold mb-8 leading-relaxed text-sm md:text-base bg-rose-50 dark:bg-rose-950/20 p-4 rounded-2xl border-2 border-rose-200 dark:border-rose-900/40">
+                ⚠️ คำเตือน: ความคืบหน้าของด่านที่เคยผ่านทั้งหมดจะถูกลบถาวร และย้อนกลับไปเริ่มที่ด่านที่ 1 ใหม่ทั้งหมด!
+              </p>
+              <div className="flex gap-4">
+                <button 
+                  onClick={handleResetProgress} 
+                  className="flex-1 py-3 px-6 bg-rose-500 hover:bg-rose-600 text-white font-black rounded-xl border-3 border-slate-900 shadow-[3px_3px_0_#0f172a] transition-all text-sm md:text-base animate-pulse"
+                >
+                  ยืนยันการรีเซ็ต
+                </button>
+                <button 
+                  onClick={() => setShowResetConfirm(false)} 
+                  className="flex-1 py-3 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black rounded-xl border-3 border-slate-900 shadow-[3px_3px_0_#0f172a] dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-white transition-all text-sm md:text-base"
+                >
+                  ยกเลิก
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
       </AnimatePresence>
     </main>
   );

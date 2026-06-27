@@ -2,15 +2,20 @@
 import React, { useEffect, useState } from 'react';
 import { Download } from 'lucide-react';
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => void;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 export default function InstallButton() {
-  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     // ดักจับระบบเบราว์เซอร์ เมื่อพร้อมให้ติดตั้งแอป
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault(); // ป้องกันไม่ให้เบราว์เซอร์เด้งหน้าต่างเอง
-      setDeferredPrompt(e); // เก็บ Event ไว้ให้ปุ่มของเรากด
+      setDeferredPrompt(e as BeforeInstallPromptEvent); // เก็บ Event ไว้ให้ปุ่มของเรากด
       setIsReady(true); // โชว์ปุ่มลอยของเราขึ้นมา
     };
 

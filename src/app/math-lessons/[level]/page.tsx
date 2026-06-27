@@ -3,11 +3,25 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { 
-  Calculator, Shapes, Sigma, PlayCircle, Target, ChevronRight, Star, 
-  Clock, PieChart, Percent, Box, Ruler, LineChart, DivideCircle, Hash, ShieldAlert
+  Calculator, Shapes, Sigma, PlayCircle, ChevronRight, Star, 
+  Clock, PieChart, Percent, Box, Ruler, LineChart, DivideCircle, Hash
 } from 'lucide-react';
 
-const mathData: Record<string, any> = {
+interface ChapterItem {
+  id: string;
+  title: string;
+  desc: string;
+  icon: React.ElementType;
+  color: string;
+}
+
+interface GradeData {
+  title: string;
+  term1: ChapterItem[];
+  term2: ChapterItem[];
+}
+
+const mathData: Record<string, GradeData> = {
   p4: {
     title: "คณิตศาสตร์ ป.4",
     term1: [
@@ -83,7 +97,7 @@ export default function MathLessonsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {data.term1.map((chap: any, idx: number) => {
+            {data.term1.map((chap: ChapterItem, idx: number) => {
               const Icon = chap.icon;
               return (
                 <div key={idx} className="group flex flex-col rounded-[2.5rem] bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-8 shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000] hover:-translate-y-2 hover:shadow-[12px_12px_0_0_#0F172A] dark:hover:shadow-[12px_12px_0_0_#000] transition-all">
@@ -127,7 +141,7 @@ export default function MathLessonsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {data.term2.map((chap: any, idx: number) => {
+            {data.term2.map((chap: ChapterItem, idx: number) => {
               const Icon = chap.icon;
               return (
                 <div key={idx} className="group flex flex-col rounded-[2.5rem] bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-8 shadow-[8px_8px_0_0_#0F172A] dark:shadow-[8px_8px_0_0_#000] hover:-translate-y-2 hover:shadow-[12px_12px_0_0_#0F172A] dark:hover:shadow-[12px_12px_0_0_#000] transition-all">

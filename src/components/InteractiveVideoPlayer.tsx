@@ -1,11 +1,23 @@
 'use client';
 import { allQuestions } from '@/data/allQuestions';
 import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { gameMusic } from '@/utils/gameMusic';
 import Webcam from 'react-webcam';
+
+// Type for the YouTube Iframe API that gets loaded dynamically
+interface YTPlayer {
+  destroy: () => void;
+}
+interface YouTubeWindow {
+  YT?: {
+    Player: new (elementId: string, options: Record<string, unknown>) => YTPlayer;
+  };
+  onYouTubeIframeAPIReady?: () => void;
+}
 import { HandLandmarker } from '@mediapipe/tasks-vision';
 import { getHandLandmarker } from '@/utils/mediapipe';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, XCircle, X, ChevronRight, Trophy, HelpCircle, Video, FastForward, Camera, Sparkles, Pause, Play, Maximize, Minimize, Hand } from 'lucide-react';
+import { CheckCircle2, XCircle, X, ChevronRight, Trophy, Video, FastForward, Camera, Sparkles, Pause, Play, Maximize, Minimize, Hand } from 'lucide-react';
 
 interface InteractiveQuestion {
   q: string;
@@ -311,6 +323,7 @@ export default function InteractiveVideoPlayer({
   const holdFramesRef = useRef({ LEFT: 0, RIGHT: 0 });
   const isProcessingRef = useRef(false);
   const animationFrameRef = useRef<number | null>(null);
+  const triggerChoiceRef = useRef<((choice: 'LEFT' | 'RIGHT') => void) | null>(null);
 
   const [handLandmarker, setHandLandmarker] = useState<HandLandmarker | null>(null);
   const [isApiLoaded, setIsApiLoaded] = useState(false);
@@ -329,6 +342,18 @@ export default function InteractiveVideoPlayer({
   const currentQData = currentSegment?.questions[currentQuestionIndex];
   const [score, setScore] = useState(0);
 
+  // ─── Play synthesized Kahoot-like background music during quiz play ───────
+  useEffect(() => {
+    if (modalStage === 'PLAYING_QUIZ') {
+      gameMusic.start();
+    } else {
+      gameMusic.stop();
+    }
+    return () => {
+      gameMusic.stop();
+    };
+  }, [modalStage]);
+
   // คำนวณจำนวนข้อทั้งหมดด้วย useMemo (ไม่ต้องใช้ useEffect + setState)
   const totalQuestionsCount = useMemo(() =>
     lessonData.segments.reduce((sum, seg) => sum + seg.questions.length, 0),
@@ -337,7 +362,8 @@ export default function InteractiveVideoPlayer({
 
   // 1. โหลด YouTube Iframe Player API
   useEffect(() => {
-    if (!(window as any).YT) {
+    const ytWindow = window as unknown as YouTubeWindow;
+    if (!ytWindow.YT) {
       const tag = document.createElement('script');
       tag.src = 'https://www.youtube.com/iframe_api';
       const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -346,20 +372,20 @@ export default function InteractiveVideoPlayer({
       }
     }
 
-    const prevCallback = (window as any).onYouTubeIframeAPIReady;
-    (window as any).onYouTubeIframeAPIReady = () => {
+    const prevCallback = ytWindow.onYouTubeIframeAPIReady;
+    ytWindow.onYouTubeIframeAPIReady = () => {
       if (prevCallback) prevCallback();
       setIsApiLoaded(true);
     };
 
-    if ((window as any).YT && (window as any).YT.Player) {
+    if (ytWindow.YT?.Player) {
       setIsApiLoaded(true);
     }
 
     return () => {
-      (window as any).onYouTubeIframeAPIReady = prevCallback;
+      ytWindow.onYouTubeIframeAPIReady = prevCallback;
     };
-  }, []);
+  }, []);;
 
   // 2. ควบคุมเครื่องเล่นวิดีโอ YouTube
   useEffect(() => {
@@ -371,7 +397,8 @@ export default function InteractiveVideoPlayer({
     // ดีเลย์นิดหน่อยให้ Div มั่นใจว่าเรนเดอร์ใน DOM แล้ว
     const timer = setTimeout(() => {
       try {
-        player = new (window as any).YT.Player(playerDivId, {
+        const ytWindow = window as unknown as YouTubeWindow;
+        player = new ytWindow.YT!.Player(playerDivId, {
           height: '100%',
           width: '100%',
           videoId: currentSegment.youtubeId,
@@ -401,7 +428,7 @@ export default function InteractiveVideoPlayer({
       if (player && typeof player.destroy === 'function') {
         try {
           player.destroy();
-        } catch (e) {}
+        } catch {}
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -447,7 +474,39 @@ export default function InteractiveVideoPlayer({
     onClose();
   };
 
-  // 4. ตรวจจับตำหน่งมือ
+  // Helper: draw a loading-ring on the canvas
+  const drawProgressRing = (ctx: CanvasRenderingContext2D, x: number, y: number, progress: number, color: string) => {
+    ctx.beginPath();
+    ctx.arc(x, y, 35, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * Math.min(1, progress));
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+  };
+
+  // triggerChoice: wrapped in useCallback so it always sees fresh state.
+  // Stored in a ref so the rAF detect loop can call it without needing it
+  // in the dep-array (which would cause the loop to restart on every answer).
+  const triggerChoice = React.useCallback((choice: 'LEFT' | 'RIGHT') => {
+    isProcessingRef.current = true;
+    setLockedChoice(choice);
+
+    const correctChoice = currentQData?.ans;
+    const isCorrect = choice === correctChoice;
+    if (isCorrect) setScore(prev => prev + 1);
+    setIsAnswerCorrect(isCorrect);
+
+    setTimeout(() => {
+      setModalStage('SHOW_EXPLANATION');
+      isProcessingRef.current = false;
+      holdFramesRef.current = { LEFT: 0, RIGHT: 0 };
+    }, 600);
+  }, [currentQData]);
+
+  // Keep ref in sync so rAF loop always uses latest version
+  triggerChoiceRef.current = triggerChoice;
+
+  // 4. ตรวจจับตำแหน่งมือ
   useEffect(() => {
     if (modalStage !== 'PLAYING_QUIZ' || !handLandmarker) {
       if (animationFrameRef.current) {
@@ -508,7 +567,7 @@ export default function InteractiveVideoPlayer({
                 const progress = holdFramesRef.current.LEFT / HOLD_THRESHOLD;
                 drawProgressRing(ctx, x, y, progress, '#06b6d4');
                 if (holdFramesRef.current.LEFT >= HOLD_THRESHOLD) {
-                  triggerChoice('LEFT');
+                  triggerChoiceRef.current?.('LEFT');
                 }
               } else if (detectedZone === 'RIGHT') {
                 holdFramesRef.current.RIGHT++;
@@ -516,7 +575,7 @@ export default function InteractiveVideoPlayer({
                 const progress = holdFramesRef.current.RIGHT / HOLD_THRESHOLD;
                 drawProgressRing(ctx, x, y, progress, '#ec4899');
                 if (holdFramesRef.current.RIGHT >= HOLD_THRESHOLD) {
-                  triggerChoice('RIGHT');
+                  triggerChoiceRef.current?.('RIGHT');
                 }
               } else {
                 holdFramesRef.current.LEFT = 0;
@@ -543,31 +602,6 @@ export default function InteractiveVideoPlayer({
       }
     };
   }, [handLandmarker, modalStage]);
-
-  const drawProgressRing = (ctx: CanvasRenderingContext2D, x: number, y: number, progress: number, color: string) => {
-    ctx.beginPath();
-    ctx.arc(x, y, 35, -Math.PI / 2, -Math.PI / 2 + 2 * Math.PI * Math.min(1, progress));
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 8;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-  };
-
-  const triggerChoice = (choice: 'LEFT' | 'RIGHT') => {
-    isProcessingRef.current = true;
-    setLockedChoice(choice);
-
-    const correctChoice = currentQData?.ans;
-    const isCorrect = choice === correctChoice;
-    if (isCorrect) setScore(prev => prev + 1);
-    setIsAnswerCorrect(isCorrect);
-
-    setTimeout(() => {
-      setModalStage('SHOW_EXPLANATION');
-      isProcessingRef.current = false;
-      holdFramesRef.current = { LEFT: 0, RIGHT: 0 };
-    }, 600);
-  };
 
   const handleVideoEnd = () => {
     if (document.fullscreenElement) {
