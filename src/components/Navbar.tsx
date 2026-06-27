@@ -5,11 +5,27 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Settings, Palette, Volume2, VolumeX, HelpCircle, ArrowLeft, Home } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import ThemeToggle from './ThemeToggle';
+import { gameMusic } from '@/utils/gameMusic';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Load sound state from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('edumove_sound_enabled');
+    const enabled = saved !== 'false';
+    setIsSoundEnabled(enabled);
+    gameMusic.isMuted = !enabled;
+  }, []);
+
+  const toggleSound = () => {
+    const nextVal = !isSoundEnabled;
+    setIsSoundEnabled(nextVal);
+    gameMusic.isMuted = !nextVal;
+    localStorage.setItem('edumove_sound_enabled', String(nextVal));
+  };
 
   // ใช้เช็คว่าอยู่หน้าไหน และใช้สำหรับกดย้อนกลับ
   const pathname = usePathname();
@@ -118,7 +134,7 @@ export default function Navbar() {
 
                   {/* 2. Sound Toggle */}
                   <button 
-                    onClick={() => setIsSoundEnabled(!isSoundEnabled)}
+                    onClick={toggleSound}
                     className="flex w-full items-center justify-between rounded-2xl px-4 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 text-left"
                   >
                     <div className="flex items-center gap-3">

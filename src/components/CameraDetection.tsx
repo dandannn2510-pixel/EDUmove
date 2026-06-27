@@ -5,7 +5,7 @@ import { getHandLandmarker } from '@/utils/mediapipe';
 import { HandLandmarker } from '@mediapipe/tasks-vision';
 import { useGameStore } from '@/store/gameStore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Hand, FastForward, Lightbulb, Sparkles } from 'lucide-react';
+import { Play, Hand, FastForward, Lightbulb, Sparkles, XCircle } from 'lucide-react';
 import { gameMusic } from '@/utils/gameMusic';
 
 export interface QuestionData {
@@ -55,7 +55,7 @@ export default function CameraDetection({
 
   const [status, setStatus] = useState<'INTRO' | 'SHOW_TITLE' | 'READY' | 'PLAYING' | 'RESULT'>('INTRO');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(25);
   const [readyTime, setReadyTime] = useState(3);
   
   const [lockedA, setLockedA] = useState<'A' | 'B' | 'C' | 'D' | null>(null);
@@ -99,7 +99,7 @@ export default function CameraDetection({
         timer = setTimeout(() => setReadyTime(prev => prev - 1), 1000);
       } else {
         gameMusic.playCountdownTickSound(true);
-        setStatus('PLAYING'); setTimeLeft(10);
+        setStatus('PLAYING'); setTimeLeft(30);
         setLockedA(null); setLockedB(null);
         holdFramesRef.current = { teamA: { A: 0, B: 0, C: 0, D: 0 }, teamB: { A: 0, B: 0, C: 0, D: 0 } };
       }
@@ -327,6 +327,24 @@ export default function CameraDetection({
         )}
       </AnimatePresence>
 
+      {status !== 'SHOW_TITLE' && (
+        <div className="absolute bottom-6 left-6 z-[100] flex flex-wrap items-center gap-3">
+          <button 
+            onClick={() => onFinish(0, 0)}
+            className="bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2"
+          >
+            <XCircle size={20} /> ออกจากการทดสอบ
+          </button>
+          {onViewAnswers && (
+            <button 
+              onClick={onViewAnswers}
+              className="bg-white/20 backdrop-blur-md hover:bg-amber-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2"
+            >
+              <Lightbulb size={20} /> ดูเฉลย
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

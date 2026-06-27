@@ -4,7 +4,7 @@ import Webcam from 'react-webcam';
 import { FaceLandmarker, HandLandmarker } from '@mediapipe/tasks-vision';
 import { getHandLandmarker, getFaceLandmarker } from '@/utils/mediapipe';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, XCircle, Trophy, AlertTriangle, Swords, HelpCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Trophy, AlertTriangle, Swords, HelpCircle, Lightbulb } from 'lucide-react';
 import { gameMusic } from '@/utils/gameMusic';
 
 export interface QuizData {
@@ -34,7 +34,7 @@ const ChoiceBox = memo(function ChoiceBox({ choice, text, colorClass, borderClas
 // ─── Component ────────────────────────────────────────────────────────────────
 type GameStatus = 'INTRO' | 'WAIT_TURN_BACK' | 'COUNTDOWN' | 'RANDOM_DELAY' | 'GO_SIGNAL' | 'ANSWERING' | 'RESULT' | 'SUMMARY';
 
-export default function TugOfWarCamera({ questions, onFinish }: { questions: QuizData[], onFinish: (leftScore?: number, rightScore?: number) => void, experimentName?: string }) {
+export default function TugOfWarCamera({ questions, onFinish, onViewAnswers }: { questions: QuizData[], onFinish: (leftScore?: number, rightScore?: number) => void, onViewAnswers?: () => void, experimentName?: string }) {
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -45,7 +45,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
   const [currentQ, setCurrentQ] = useState(0);
   const [hp, setHp] = useState(50);
   const [readyTime, setReadyTime] = useState(3);
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(30);
   const [fastestPlayer, setFastestPlayer] = useState<'LEFT' | 'RIGHT' | null>(null);
   const [lockedChoice, setLockedChoice] = useState<'A' | 'B' | 'C' | 'D' | 'TIMEOUT' | null>(null);
 
@@ -133,7 +133,7 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
               const noseX = 1 - faceResult.faceLandmarks[0][1].x;
               if (noseX < 0.5) setFastestPlayer('LEFT');
               else setFastestPlayer('RIGHT');
-              setStatus('ANSWERING'); setTimeLeft(10); holdFramesRef.current = { A: 0, B: 0, C: 0, D: 0 };
+              setStatus('ANSWERING'); setTimeLeft(30); holdFramesRef.current = { A: 0, B: 0, C: 0, D: 0 };
             }
           }
 
@@ -419,9 +419,24 @@ export default function TugOfWarCamera({ questions, onFinish }: { questions: Qui
         </div>
       )}
 
-      <button onClick={() => onFinish()} className="absolute bottom-6 left-6 z-[100] bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-6 py-3 rounded-full font-bold shadow-xl border-2 border-white/50 flex items-center gap-2 transition-all hover:scale-105">
-        <XCircle size={20} /> ออกจากการทดสอบ
-      </button>
+      {status !== 'INTRO' && (
+        <div className="absolute bottom-6 left-6 z-[100] flex flex-wrap items-center gap-3">
+          <button 
+            onClick={() => onFinish()}
+            className="bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2"
+          >
+            <XCircle size={20} /> ออกจากการทดสอบ
+          </button>
+          {onViewAnswers && (
+            <button 
+              onClick={onViewAnswers}
+              className="bg-white/20 backdrop-blur-md hover:bg-amber-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2"
+            >
+              <Lightbulb size={20} /> ดูเฉลย
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

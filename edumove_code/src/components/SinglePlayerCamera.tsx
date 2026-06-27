@@ -3,22 +3,24 @@ import React, { useRef, useEffect, useState } from 'react';
 import Webcam from 'react-webcam';
 import { FilesetResolver, FaceLandmarker } from '@mediapipe/tasks-vision';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
-import { CheckCircle2, XCircle, FileText, Home, RotateCcw, Clock, Trophy } from 'lucide-react';
+import { CheckCircle2, XCircle, FileText, Home, RotateCcw, Clock, Trophy, Lightbulb, FastForward } from 'lucide-react';
 
 export interface SingleQuestionData {
   q: string;
   leftChoice: string;
   rightChoice: string;
   ans: 'LEFT' | 'RIGHT';
+  explanation?: string;
 }
 
 interface Props {
   questions: SingleQuestionData[];
   onExit: (score?: number) => void;
+  onViewAnswers?: () => void;
   experimentName?: string;
 }
 
-export default function SinglePlayerCamera({ questions, onExit, experimentName }: Props) {
+export default function SinglePlayerCamera({ questions, onExit, onViewAnswers, experimentName }: Props) {
   const webcamRef = useRef<Webcam>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [faceLandmarker, setFaceLandmarker] = useState<FaceLandmarker | null>(null);
@@ -60,6 +62,22 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
     initAI();
   }, []);
 
+  const skipQuestion = () => {
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
+    setTimeout(() => {
+      if (currentQ + 1 < questions.length) {
+        setCurrentQ(prev => prev + 1);
+        setStatus('READY');
+        setReadyTime(3);
+      } else {
+        setStatus('SUMMARY');
+      }
+      isProcessingRef.current = false;
+      setLockedChoice(null);
+    }, 100);
+  };
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (status === 'SHOW_TITLE') {
@@ -69,20 +87,12 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
       if (readyTime > 0) {
         timer = setTimeout(() => setReadyTime(prev => prev - 1), 1000);
       } else {
-        setStatus('PLAYING'); setTimeLeft(15); setLockedChoice(null);
+        setStatus('PLAYING'); setTimeLeft(0); setLockedChoice(null);
         isProcessingRef.current = false; holdFramesRef.current = { LEFT: 0, RIGHT: 0 };
       }
     } 
-    else if (status === 'PLAYING') {
-      if (timeLeft > 0) {
-        timer = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
-      } else {
-        setLockedChoice('TIMEOUT');
-        handleAnswer('TIMEOUT'); 
-      }
-    }
     return () => clearTimeout(timer);
-  }, [status, readyTime, timeLeft]);
+  }, [status, readyTime]);
 
   useEffect(() => {
     if (status !== 'PLAYING' || !faceLandmarker) return;
@@ -117,8 +127,8 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
               headY.set((yRatio - 0.5) * 400);
 
               let detectedZone: 'LEFT' | 'RIGHT' | null = null;
-              if (xRatio < 0.35) detectedZone = 'LEFT';
-              else if (xRatio > 0.65) detectedZone = 'RIGHT';
+              if (xRatio < 0.42) detectedZone = 'LEFT';
+              else if (xRatio > 0.58) detectedZone = 'RIGHT';
 
               ctx.fillStyle = detectedZone ? '#fbbf24' : '#fff';
               ctx.beginPath(); ctx.arc(x, y, 8, 0, 2 * Math.PI); ctx.fill();
@@ -273,11 +283,14 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
               <div className="bg-indigo-600/90 backdrop-blur-xl text-white px-6 py-2.5 rounded-full font-black text-lg md:text-xl shadow-lg border-2 border-indigo-400 flex items-center gap-2">
                 <FileText size={20} fill="currentColor"/> ข้อที่ {currentQ + 1} / {questions.length}
               </div>
-              <div className="absolute left-1/2 -translate-x-1/2 top-4 md:top-6">
-                <div className={`px-8 py-3 rounded-full font-black text-2xl md:text-3xl shadow-[0_0_20px_rgba(0,0,0,0.3)] border-4 flex items-center gap-3 transition-colors ${timeLeft <= 5 ? 'bg-rose-500 border-white text-white animate-pulse' : 'bg-amber-400 border-white text-slate-900'}`}>
-                  <Clock size={28}/> เวลา: {timeLeft} วินาที
-                </div>
-              </div>
+              {status === 'PLAYING' && (
+                <button 
+                  onClick={skipQuestion} 
+                  className="bg-amber-400 hover:bg-amber-500 text-slate-900 px-6 py-2.5 rounded-full font-black text-lg shadow-lg border-2 border-white flex items-center gap-2 pointer-events-auto transition-colors"
+                >
+                  ข้ามข้อ <FastForward size={20} />
+                </button>
+              )}
             </div>
 
             <motion.div 
@@ -322,9 +335,24 @@ export default function SinglePlayerCamera({ questions, onExit, experimentName }
         )}
       </AnimatePresence>
 
-      <button onClick={() => onExit()} className="absolute bottom-6 left-6 z-[100] bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-5 py-2.5 md:px-6 md:py-3 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2">
-        <XCircle size={20} /> ออกจากแบบทดสอบ
-      </button>
+      {status !== 'SHOW_TITLE' && (
+        <div className="absolute bottom-6 left-6 z-[100] flex flex-wrap items-center gap-3">
+          <button 
+            onClick={() => onExit()}
+            className="bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2"
+          >
+            <XCircle size={20} /> ออกจากแบบทดสอบ
+          </button>
+          {onViewAnswers && (
+            <button 
+              onClick={onViewAnswers}
+              className="bg-white/20 backdrop-blur-md hover:bg-amber-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2"
+            >
+              <Lightbulb size={20} /> ดูเฉลย
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

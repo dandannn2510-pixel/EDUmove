@@ -296,18 +296,11 @@ export default function MathDynamicQuizPage() {
 
   return (
     <div className="w-full h-screen bg-[#020617] overflow-hidden relative">
-      <button 
-        onClick={() => setShowAnswers(true)} 
-        className="absolute bottom-6 right-6 z-[100] bg-slate-900/80 hover:bg-amber-500 hover:text-slate-900 border border-amber-500/50 text-amber-400 px-5 py-2.5 rounded-full font-bold flex items-center gap-2 transition-all backdrop-blur-md shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.5)] group"
-      >
-        <Lightbulb size={20} className="animate-pulse group-hover:animate-none" /> ดูเฉลยด่วน
-      </button>
-
       {/* 🚀 บังคับ Type ด้วย as any เพื่อให้ TypeScript เลิกงอแง */}
       {isChallenge ? (
-        <SinglePlayerCamera questions={questions as any} onExit={() => router.back()} experimentName={expName} />
+        <SinglePlayerCamera questions={questions as any} onExit={() => router.back()} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
       ) : difficulty === 'hard' ? (
-        <TugOfWarCamera questions={questions as any} onFinish={() => router.back()} experimentName={expName} />
+        <TugOfWarCamera questions={questions as any} onFinish={() => router.back()} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
       ) : (
         <CameraDetection questions={questions as any} onFinish={() => router.back()} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
       )}

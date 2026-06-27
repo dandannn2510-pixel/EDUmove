@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Zap, Trophy, AlertTriangle, Lightbulb, Target, Brain, Sparkles, Gift, Crosshair, Heart, Swords, Flame } from 'lucide-react';
+import { Shield, Zap, Trophy, AlertTriangle, Lightbulb, Target, Brain, Sparkles, Gift, Crosshair, Heart, Swords, Flame , XCircle, ArrowLeft } from 'lucide-react';
 import { gameMusic } from '@/utils/gameMusic';
 import ConfettiCelebration from '@/components/ConfettiCelebration';
 
@@ -52,6 +52,11 @@ export default function OnetFinalBossRaidPage() {
   const [raidResult, setRaidResult] = useState<'WIN' | 'LOSE' | null>(null);
 
   const [correctStreak, setCorrectStreak] = useState(0);
+  const [showAnswers, setShowAnswers] = useState(false);
+  const skipQuestion = () => {
+    setCorrectStreak(0);
+    goToNextQuestion();
+  };
   type ChestReward = { type: string; val: number; icon: React.ReactNode; text: string; color: string; };
   const [chestRewards, setChestRewards] = useState<ChestReward[]>([]);
   const [openedChestIndex, setOpenedChestIndex] = useState<number | null>(null);
@@ -355,16 +360,29 @@ export default function OnetFinalBossRaidPage() {
                 </div>
               )}
               {/* ⏱️ ตัวโชว์เวลา เปลี่ยนเป็นดีไซน์ใหม่ ไม่กดดัน */}
-              <div className="bg-slate-800 text-amber-400 px-5 py-1.5 rounded-full font-black flex items-center gap-2 border border-amber-500/30">
-                <Flame size={16} className={timeLeft >= 10 ? 'animate-pulse text-rose-500' : 'text-slate-500'} /> 
-                โบนัสความไว: {timeLeft > 0 ? timeLeft : 0}s
-              </div>
+              
             </div>
 
             <p className="text-2xl md:text-4xl font-bold text-white leading-normal text-balance">
               {qData?.q}
             </p>
           </motion.div>
+
+          {/* Bottom Left Buttons for Dynamic Subject */}
+          <div className="absolute bottom-6 left-6 z-[100] flex flex-wrap items-center gap-3">
+            <button 
+              onClick={() => router.push('/onet')}
+              className="bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2 pointer-events-auto"
+            >
+              <XCircle size={20} /> ออกจากการทดสอบ
+            </button>
+            <button 
+              onClick={() => setShowAnswers(true)}
+              className="bg-white/20 backdrop-blur-md hover:bg-amber-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2 pointer-events-auto"
+            >
+              <Lightbulb size={20} /> ดูเฉลย
+            </button>
+          </div>
 
           <div className="w-full max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 h-auto">
             {['A', 'B', 'C', 'D'].map((choice) => {
@@ -559,6 +577,57 @@ export default function OnetFinalBossRaidPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Answers Overlay Modal for Dynamic Subject */}
+      {showAnswers && (
+        <div className="fixed inset-0 z-[500] bg-slate-950/95 backdrop-blur-xl flex flex-col items-center justify-start p-6 md:p-12 overflow-y-auto text-slate-900 dark:text-white" style={{ fontFamily: "var(--font-prompt), sans-serif" }}>
+          <div className="max-w-4xl w-full mx-auto pb-20">
+            <div className="flex items-center justify-between mb-10">
+              <button 
+                onClick={() => setShowAnswers(false)} 
+                className="inline-flex items-center gap-2 text-slate-700 bg-white border-4 border-slate-900 px-6 py-3 rounded-2xl font-black shadow-[4px_4px_0_0_#0F172A] hover:-translate-y-0.5 active:translate-y-0.5 active:shadow-none transition-all dark:bg-slate-800 dark:text-white dark:border-slate-700"
+              >
+                <ArrowLeft size={20} strokeWidth={3} /> กลับไปเล่นเกมต่อ
+              </button>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black text-white mb-8 flex items-center gap-3">
+              <Lightbulb size={40} className="text-amber-500 animate-pulse" /> เฉลยข้อสอบ O-NET (PART {currentPart})
+            </h1>
+            <div className="space-y-8">
+              {currentQuestions.map((q, i) => (
+                <div key={i} className="bg-white dark:bg-slate-800 border-4 border-slate-900 dark:border-slate-700 p-6 md:p-8 rounded-[2.5rem] shadow-[6px_6px_0_0_#0F172A] dark:shadow-[6px_6px_0_0_#000000]">
+                  <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-6"><span className="text-emerald-500 dark:text-emerald-400 mr-2">ข้อที่ {i+1}:</span>{q.q}</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {['A', 'B', 'C', 'D'].map(choice => {
+                      const choiceKey = `choice${choice}` as keyof OnetQuestion;
+                      const text = q[choiceKey] as string;
+                      const isCorrect = choice === q.ans;
+                      return (
+                        <div key={choice} className={`p-4 rounded-2xl border-4 font-bold text-lg transition-all ${
+                          isCorrect 
+                            ? 'border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold' 
+                            : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400'
+                        }`}>
+                          <span className="font-black mr-1">{choice}.</span> {text}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {q.explanation && (
+                    <div className="mt-6 p-5 bg-blue-50 dark:bg-slate-900/50 border-2 border-slate-900 dark:border-slate-700 rounded-2xl flex gap-3 text-slate-700 dark:text-slate-300">
+                      <Lightbulb size={24} className="text-amber-500 shrink-0" />
+                      <div>
+                        <h4 className="font-black text-sm text-slate-900 dark:text-white mb-1">คำอธิบายเฉลย:</h4>
+                        <p className="font-medium text-base leading-relaxed">{q.explanation}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

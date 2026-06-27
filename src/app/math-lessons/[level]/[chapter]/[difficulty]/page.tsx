@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   AlertCircle, Lightbulb, ArrowLeft, CheckCircle2, Info, Trophy, 
-  PlayCircle, Camera, Target, Users, Hand, Timer, Activity, Brain, Focus 
+  PlayCircle, Camera, Target, Users, Hand, Timer, Activity, Brain, Focus, Smile
 } from 'lucide-react';
 
 import SinglePlayerCamera, { SingleQuestionData } from '@/components/SinglePlayerCamera';
@@ -483,12 +483,12 @@ export default function MathDynamicQuizPage() {
     const term = chapterOrChallenge === 'challenge1' ? '1' : '2';
     const diffText = difficulty === 'easy' ? 'ง่าย' : difficulty === 'medium' ? 'ปานกลาง' : 'ยาก';
     expName = `คณิตศาสตร์ ป.${gradeText} ภาคเรียนที่ ${term} ระดับ ${diffText}`;
-    ruleTitle = "ด่านท้าทาย (Hand Tracking)";
-    icon = <Hand className="text-amber-500" size={40} />;
+    ruleTitle = "ด่านท้าทาย (Head Tracking)";
+    icon = <Smile className="text-amber-500" size={40} />;
     instructionsList = [
-      { icon: <Focus className="text-blue-500" />, title: "1. เตรียมพร้อม", desc: "ยืนตรงหน้ากล้อง ให้ระบบตรวจจับฝ่ามือของคุณ" },
-      { icon: <Hand className="text-emerald-500" />, title: "2. เลือกคำตอบ", desc: "ชูมือค้างไว้หน้ากล้อง แล้วขยับมือไปทางซ้ายหรือขวาเพื่อเลือกคำตอบ" },
-      { icon: <Timer className="text-rose-500" />, title: "3. ค้างมือไว้เพื่อยืนยัน", desc: "ชูมือค้างไว้ตรงฝั่งตัวเลือก 1-2 วินาที จนกระทั่งวงเกจสีน้ำเงิน/ชมพูโหลดเต็ม" },
+      { icon: <Focus className="text-blue-500" />, title: "1. เตรียมพร้อม", desc: "หันหน้าเข้าหากล้อง ให้ระบบตรวจจับใบหน้าของคุณ" },
+      { icon: <Smile className="text-emerald-500" />, title: "2. เลือกคำตอบ", desc: "เอียงศีรษะไปทางซ้ายหรือขวาเพื่อเลือกคำตอบ" },
+      { icon: <Timer className="text-rose-500" />, title: "3. ค้างไว้เพื่อยืนยัน", desc: "เอียงศีรษะค้างไว้ตรงฝั่งตัวเลือก 1-2 วินาที จนกระทั่งเกจโหลดเต็ม" },
     ];
   } else {
     const typeText = difficulty === 'easy' ? 'Pre-test' : 'Post-test';
@@ -574,16 +574,12 @@ export default function MathDynamicQuizPage() {
       {/* 🟢 2. หน้าจอเล่นเกม */}
       {gameState === 'PLAYING' && (
         <>
-          <button onClick={() => setShowAnswers(true)} className="absolute bottom-6 right-6 z-[100] bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2 border-4 border-slate-900 hover:bg-amber-300 dark:hover:bg-amber-400 dark:border-slate-700 transition-all shadow-[4px_4px_0_0_#0F172A] dark:shadow-[4px_4px_0_0_#000000] active:translate-y-0.5 active:shadow-none">
-            <Lightbulb size={20} className="text-amber-500" /> ดูเฉลย
-          </button>
-
           {isChallenge ? (
             /* @ts-expect-error - challengeData questions use a different shape */
-            <SinglePlayerCamera questions={questions} onExit={() => router.back()} onFinish={finishGame} experimentName={expName} />
+            <SinglePlayerCamera questions={questions} onExit={() => router.back()} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
           ) : difficulty === 'hard' ? (
             /* @ts-expect-error - quiz questions used for tug-of-war */
-            <TugOfWarCamera questions={questions} onFinish={finishGame} onExit={() => router.back()} experimentName={expName} />
+            <TugOfWarCamera questions={questions} onFinish={finishGame} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
           ) : (
             /* @ts-expect-error - quiz questions used for camera detection */
             <CameraDetection questions={questions} onFinish={finishGame} onSkip={() => router.back()} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />

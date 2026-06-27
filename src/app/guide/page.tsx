@@ -34,7 +34,7 @@ export default function GuidePage() {
             รู้จักกับ <span className="text-orange-500">EDU</span><span className="text-blue-500">move</span>
           </h1>
           <p className="text-xl text-slate-600 dark:text-slate-400 leading-relaxed font-medium max-w-4xl">
-            คู่มือการเรียนรู้และควบคุมระบบ AI ตรวจจับท่าทาง (Gesture Control) พร้อมเจาะลึกกติกาและกลไกของเกมทุกประเภท เพื่อให้(นักเรียนทุกๆคน)พร้อมที่สุด
+            คู่มือการเรียนรู้และควบคุมระบบ AI ตรวจจับท่าทาง (Gesture Control) พร้อมเจาะลึกกติกาและกลไกของเกมทุกประเภท เพื่อให้(นักเรียนทุกๆคน)พร้อมไปกับ EDUmove
           </p>
         </header>
 
@@ -165,7 +165,7 @@ export default function GuidePage() {
                         <p><strong>เลื่อนเพื่อเลือก:</strong> ขยับมือกลางอากาศเพื่อบังคับ Cursor ไปวางทับปุ่มคำตอบ (A, B, C หรือ D) ที่ต้องการ</p>
                       </div>
                       <div className="flex gap-4">
-                        <div className="w-8 h-8 rounded-full bg-blue-400 border-2 border-slate-900 flex items-center justify-center font-bold shrink-0 text-slate-900 shadow-[2px_2px_0_0_#0F172A]">3</div>
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-900 dark:border-slate-700 flex items-center justify-center font-bold shrink-0 shadow-[2px_2px_0_0_#0F172A] dark:shadow-none text-slate-900 dark:text-white">3</div>
                         <p><strong>ค้างไว้เพื่อยืนยัน:</strong> เมื่อนำมือไปวางทับตัวเลือก จะมี <strong>หลอดโหลดเวลา (Loading Ring)</strong> ปรากฏขึ้น ให้ทำมือค้างไว้จุดเดิมเพื่อล็อคคำตอบ!</p>
                       </div>
                     </div>
@@ -209,7 +209,7 @@ export default function GuidePage() {
                         <p><strong>ขยับร่างกาย:</strong> เมื่อได้ยินสัญญาณ <em>&quot;เสียง&quot;</em> ให้ผู้เล่น <strong>หันหน้าเข้าหากล้อง</strong> อย่างรวดเร็ว ฝ่ายไหนที่ใมสามารถหันได้ก่อนจะได้สิทธิ์ในการตอบคำถาม</p>
                       </div>
                       <div className="flex gap-4">
-                        <div className="w-8 h-8 rounded-full bg-emerald-400 border-2 border-slate-900 flex items-center justify-center font-bold shrink-0 text-slate-900 shadow-[2px_2px_0_0_#0F172A]">3</div>
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-900 dark:border-slate-700 flex items-center justify-center font-bold shrink-0 shadow-[2px_2px_0_0_#0F172A] dark:shadow-none text-slate-900 dark:text-white">3</div>
                         <p><strong>สร้างพลังดึง:</strong> ยิ่งตอบถูกเยอะเท่าไหร่ หลอดพลัง (Power Bar) จะยิ่งเพิ่มขึ้น ทำให้ตัวละครฝั่งคุณออกแรงดึงเชือกชักเย่อชนะคู่แข่งฝั่งตรงข้าม</p>
                       </div>
                     </div>
@@ -252,7 +252,7 @@ export default function GuidePage() {
                         <p><strong>ขยับศีรษะเพื่อเลือกคำตอบ:</strong> เมื่อโจทย์ปรากฏขึ้น ให้คุณขยับหรือเอียงศีรษะไปยังโซนคำตอบที่ต้องการ (โยกหัวไปฝั่งซ้ายเพื่อเลือกตัวเลือกซ้าย หรือ โยกหัวไปฝั่งขวาเพื่อเลือกตัวเลือกขวา)</p>
                       </div>
                       <div className="flex gap-4">
-                        <div className="w-8 h-8 rounded-full bg-amber-400 border-2 border-slate-900 flex items-center justify-center font-bold shrink-0 text-slate-900 shadow-[2px_2px_0_0_#0F172A]">3</div>
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-900 dark:border-slate-700 flex items-center justify-center font-bold shrink-0 shadow-[2px_2px_0_0_#0F172A] dark:shadow-none text-slate-900 dark:text-white">3</div>
                         <p><strong>ค้างไว้เพื่อยืนยัน:</strong> เมื่อขยับศีรษะไปอยู่ในฝั่งคำตอบแล้ว ให้ค้างตำแหน่งไว้ชั่วคราว (ประมาณ 1.5 วินาที) &quot;วงกลมเวลา&quot; จะโหลดจนเต็ม 100% เพื่อเป็นการกดยืนยันคำตอบนั้นทันที</p>
                       </div>
                     </div>
@@ -296,7 +296,7 @@ export default function GuidePage() {
                         <p><strong>ตอบคำถามเพื่อโจมตี (Combat System):</strong> ในฉากต่อสู้ ให้ผู้เล่นใช้เมาส์หรือคีย์บอร์ดในการเลือกคำตอบ หากตอบ &quot;ถูก&quot; ผู้เล่นจะร่ายเวทมนตร์โจมตีให้ HP ของบอสลดลง แต่ระวังให้ดี! หากตอบ &quot;ผิด&quot; ผู้เล่นจะโดนบอสโจมตีสวนกลับจน HP ฝั่งเราลดลงแทน</p>
                       </div>
                       <div className="flex gap-4">
-                        <div className="w-8 h-8 rounded-full bg-fuchsia-400 border-2 border-slate-900 flex items-center justify-center font-bold shrink-0 text-slate-900 shadow-[2px_2px_0_0_#0F172A]">3</div>
+                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 border-2 border-slate-900 dark:border-slate-700 flex items-center justify-center font-bold shrink-0 shadow-[2px_2px_0_0_#0F172A] dark:shadow-none text-slate-900 dark:text-white">3</div>
                         <p><strong>สะสมคอมโบสุ่มไอเทม (Combo & Gacha):</strong> โชว์ความแม่นยำด้วยการตอบถูกติดต่อกัน 3 ข้อ (3 Combo) เพื่อปลดล็อกโบนัส &quot;กล่องสุ่มกาชา&quot; ซึ่งจะมีไอเทมช่วยเหลือพิเศษ เช่น น้ำยาฟื้นฟูพลังชีวิต (Heal) หรือ การโจมตีติดคริติคอลสุดแรง (Critical Hit) เพื่อล้มบอสให้ไวขึ้น!</p>
                       </div>
                     </div>

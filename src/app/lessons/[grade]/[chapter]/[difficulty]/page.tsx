@@ -277,19 +277,15 @@ export default function ScienceDynamicQuizPage() {
       {/* 🟢 2. หน้าจอเล่นเกม */}
       {gameState === 'PLAYING' && (
         <>
-          <button onClick={() => setShowAnswers(true)} className="absolute bottom-6 right-6 z-[100] bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2 border-4 border-slate-900 hover:bg-amber-300 dark:hover:bg-amber-400 dark:border-slate-700 transition-all shadow-[4px_4px_0_0_#0F172A] dark:shadow-[4px_4px_0_0_#000000] active:translate-y-0.5 active:shadow-none">
-            <Lightbulb size={20} className="text-amber-500" /> ดูเฉลย
-          </button>
-
           {isChallenge ? (
             /* @ts-expect-error - challengeData questions use a different shape */
-            <SinglePlayerCamera questions={questions} onExit={finishGame} onFinish={finishGame} experimentName={expName} />
+            <SinglePlayerCamera questions={questions} onExit={finishGame} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
           ) : difficulty === 'hard' ? (
             /* @ts-expect-error - quiz questions used for tug-of-war */
-            <TugOfWarCamera questions={questions} onFinish={finishGame} onExit={finishGame} experimentName={expName} />
+            <TugOfWarCamera questions={questions} onFinish={finishGame} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
           ) : (
             /* @ts-expect-error - quiz questions used for camera detection */
-            <CameraDetection questions={questions} onFinish={finishGame} onExit={finishGame} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
+            <CameraDetection questions={questions} onFinish={finishGame} onViewAnswers={() => setShowAnswers(true)} experimentName={expName} />
           )}
         </>
       )}
