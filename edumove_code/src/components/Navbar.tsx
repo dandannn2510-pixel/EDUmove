@@ -54,7 +54,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/60 bg-white/70 backdrop-blur-lg transition-colors duration-300 dark:border-slate-800/60 dark:bg-[#0b1120]/70" style={{ fontFamily: "'Prompt', sans-serif" }}>
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 lg:px-8">
-        
+
         {/* ฝั่งซ้าย: ปุ่มย้อนกลับ + โลโก้ */}
         <div className="flex items-center gap-3 sm:gap-5">
           {!isHomePage && (
@@ -81,7 +81,7 @@ export default function Navbar() {
 
         {/* ฝั่งขวา: ปุ่มหน้าหลัก + การตั้งค่า */}
         <div className="flex items-center gap-2 sm:gap-3">
-          
+
           {/* ปุ่ม หน้าหลัก (ซ่อนในหน้าโฮม) */}
           {!isHomePage && (
             <Link
@@ -99,11 +99,10 @@ export default function Navbar() {
               type="button"
               onClick={() => setMenuOpen((prev) => !prev)}
               aria-label="ตั้งค่า"
-              className={`flex items-center gap-2 rounded-full border px-3 py-2.5 sm:px-4 text-sm font-semibold shadow-sm transition-all duration-300 focus-visible:outline-none ${
-                menuOpen 
-                  ? 'border-indigo-300 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-100 dark:border-indigo-500/50 dark:bg-indigo-500/20 dark:text-indigo-300 dark:ring-indigo-900/50' 
-                  : 'border-slate-200 bg-white/50 text-slate-700 hover:bg-white hover:shadow-md hover:ring-2 hover:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200 dark:hover:bg-slate-800'
-              }`}
+              className={`flex items-center gap-2 rounded-full border px-3 py-2.5 sm:px-4 text-sm font-semibold shadow-sm transition-all duration-300 focus-visible:outline-none ${menuOpen
+                ? 'border-indigo-300 bg-indigo-50 text-indigo-700 ring-2 ring-indigo-100 dark:border-indigo-500/50 dark:bg-indigo-500/20 dark:text-indigo-300 dark:ring-indigo-900/50'
+                : 'border-slate-200 bg-white/50 text-slate-700 hover:bg-white hover:shadow-md hover:ring-2 hover:ring-indigo-100 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-200 dark:hover:bg-slate-800'
+                }`}
             >
               <Settings size={18} className={`transition-transform duration-500 ${menuOpen ? 'rotate-90' : 'group-hover:rotate-90'}`} />
               <span className="hidden sm:inline">การตั้งค่า</span>
@@ -133,7 +132,7 @@ export default function Navbar() {
                   </div>
 
                   {/* 2. Sound Toggle */}
-                  <button 
+                  <button
                     onClick={toggleSound}
                     className="flex w-full items-center justify-between rounded-2xl px-4 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50 text-left"
                   >
@@ -155,8 +154,8 @@ export default function Navbar() {
                   <div className="my-1 border-t border-slate-100 dark:border-slate-700/50"></div>
 
                   {/* 3. Help / Guide Link */}
-                  <Link 
-                    href="/guide" 
+                  <Link
+                    href="/guide"
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center justify-between rounded-2xl px-4 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50"
                   >
