@@ -255,26 +255,26 @@ export function getInteractiveLessonData(grade: string, chapterId: string) {
   // อัปเดต lookup นี้เมื่อมี YouTube video พร้อม
   const YOUTUBE_VIDEO_IDS: Record<string, Record<string, string>> = {
     p4: {
-      chapter1: 'M7lc1UVf-VE',
-      chapter2: 'M7lc1UVf-VE',
-      chapter4: 'M7lc1UVf-VE',
-      chapter5: 'M7lc1UVf-VE',
-      chapter6: 'M7lc1UVf-VE',
+      chapter1: '',
+      chapter2: '',
+      chapter4: '',
+      chapter5: '',
+      chapter6: '',
     },
     p5: {
-      chapter1: 'M7lc1UVf-VE',
-      chapter2: 'M7lc1UVf-VE',
-      chapter3: 'M7lc1UVf-VE',
-      chapter4: 'M7lc1UVf-VE',
-      chapter5: 'M7lc1UVf-VE',
-      chapter6: 'M7lc1UVf-VE',
+      chapter1: '',
+      chapter2: '',
+      chapter3: '',
+      chapter4: '',
+      chapter5: '',
+      chapter6: '',
     },
     p6: {
-      chapter1: 'M7lc1UVf-VE',
-      chapter2: 'M7lc1UVf-VE',
-      chapter4: 'M7lc1UVf-VE',
-      chapter5: 'M7lc1UVf-VE',
-      chapter6: 'M7lc1UVf-VE',
+      chapter1: '',
+      chapter2: '',
+      chapter4: '',
+      chapter5: '',
+      chapter6: '',
     },
   };
 
