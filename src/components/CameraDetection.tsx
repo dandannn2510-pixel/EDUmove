@@ -155,12 +155,22 @@ export default function CameraDetection({
 
                 if (xRatio < 0.5) { 
                   handAx = x; handAy = y;
-                  if (yRatio < 0.5) detectedZoneA = xRatio < 0.25 ? 'A' : 'B';
-                  else detectedZoneA = xRatio < 0.25 ? 'C' : 'D';
+                  if (yRatio < 0.5) {
+                    detectedZoneA = xRatio < 0.25 ? 'A' : 'B';
+                  } else if (currentQ.choiceC && currentQ.choiceD) {
+                    detectedZoneA = xRatio < 0.25 ? 'C' : 'D';
+                  } else {
+                    detectedZoneA = null;
+                  }
                 } else { 
                   handBx = x; handBy = y;
-                  if (yRatio < 0.5) detectedZoneB = xRatio < 0.75 ? 'A' : 'B';
-                  else detectedZoneB = xRatio < 0.75 ? 'C' : 'D';
+                  if (yRatio < 0.5) {
+                    detectedZoneB = xRatio < 0.75 ? 'A' : 'B';
+                  } else if (currentQ.choiceC && currentQ.choiceD) {
+                    detectedZoneB = xRatio < 0.75 ? 'C' : 'D';
+                  } else {
+                    detectedZoneB = null;
+                  }
                 }
               });
             }
@@ -194,7 +204,7 @@ export default function CameraDetection({
 
     detect();
     return () => cancelAnimationFrame(animationFrameId);
-  }, [handLandmarker, status]);
+  }, [handLandmarker, status, currentQ.choiceC, currentQ.choiceD]);
 
   const calculateResults = () => {
     setStatus('RESULT');
@@ -300,13 +310,13 @@ export default function CameraDetection({
         <>
           <ChoiceBox choice="A" text={currentQ.choiceA} lockedState={lockedA} color="rose" positioning="top-[25%] left-[2%]" />
           <ChoiceBox choice="B" text={currentQ.choiceB} lockedState={lockedA} color="blue" positioning="top-[25%] left-[26%]" />
-          <ChoiceBox choice="C" text={currentQ.choiceC} lockedState={lockedA} color="amber" positioning="bottom-[10%] left-[2%]" />
-          <ChoiceBox choice="D" text={currentQ.choiceD} lockedState={lockedA} color="emerald" positioning="bottom-[10%] left-[26%]" />
+          {currentQ.choiceC && <ChoiceBox choice="C" text={currentQ.choiceC} lockedState={lockedA} color="amber" positioning="bottom-[10%] left-[2%]" />}
+          {currentQ.choiceD && <ChoiceBox choice="D" text={currentQ.choiceD} lockedState={lockedA} color="emerald" positioning="bottom-[10%] left-[26%]" />}
 
           <ChoiceBox choice="A" text={currentQ.choiceA} lockedState={lockedB} color="rose" positioning="top-[25%] right-[26%]" />
           <ChoiceBox choice="B" text={currentQ.choiceB} lockedState={lockedB} color="blue" positioning="top-[25%] right-[2%]" />
-          <ChoiceBox choice="C" text={currentQ.choiceC} lockedState={lockedB} color="amber" positioning="bottom-[10%] right-[26%]" />
-          <ChoiceBox choice="D" text={currentQ.choiceD} lockedState={lockedB} color="emerald" positioning="bottom-[10%] right-[2%]" />
+          {currentQ.choiceC && <ChoiceBox choice="C" text={currentQ.choiceC} lockedState={lockedB} color="amber" positioning="bottom-[10%] right-[26%]" />}
+          {currentQ.choiceD && <ChoiceBox choice="D" text={currentQ.choiceD} lockedState={lockedB} color="emerald" positioning="bottom-[10%] right-[2%]" />}
         </>
       )}
 
