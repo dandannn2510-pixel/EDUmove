@@ -142,8 +142,8 @@ const CHAPTER3_P4_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
 const CHAPTER3_P6_LESSON: { segments: VideoSegment[]; summaryTitle: string; summaryItems: string[] } = {
   segments: [
     {
-      youtubeId: 'M7lc1UVf-VE',
-      title: 'คำถามที่ 1: การเกิดแรงไฟฟ้าจากการขัดถู',
+      youtubeId: 'zBB-Hb1yr6Q',
+      title: 'EP. 1: การเกิดแรงไฟฟ้าจากการขัดถู',
       questions: [
         {
           q: 'ปรากฏการณ์ "หวีผมในฤดูหนาวแล้วเส้นผมชี้ฟูตามหวีขึ้นมา" เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
@@ -155,8 +155,8 @@ const CHAPTER3_P6_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
       ]
     },
     {
-      youtubeId: 'M7lc1UVf-VE',
-      title: 'คำถามที่ 2: ผลของแรงโน้มถ่วงต่อวัตถุ',
+      youtubeId: 'J2qTMKHWI5Q',
+      title: 'EP. 2: ผลของแรงโน้มถ่วงต่อวัตถุ',
       questions: [
         {
           q: 'การที่โยนลูกบอลขึ้นไปในอากาศแล้วลูกบอลตกลงมาที่พื้น เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
@@ -168,8 +168,8 @@ const CHAPTER3_P6_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
       ]
     },
     {
-      youtubeId: 'M7lc1UVf-VE',
-      title: 'คำถามที่ 3: ไฟฟ้าสถิตบนเสื้อผ้า',
+      youtubeId: 'TZdoDe3WbIQ',
+      title: 'EP. 3: ไฟฟ้าสถิตบนเสื้อผ้า',
       questions: [
         {
           q: 'การที่เสื้อผ้าบางชนิดแนบติดตัวเราในวันที่อากาศแห้งหรือฤดูหนาว เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
@@ -181,8 +181,8 @@ const CHAPTER3_P6_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
       ]
     },
     {
-      youtubeId: 'M7lc1UVf-VE',
-      title: 'คำถามที่ 4: การไหลของของเหลวตามแรงโน้มถ่วง',
+      youtubeId: 'WXCKywiqvfw',
+      title: 'EP. 4: การไหลของของเหลวตามแรงโน้มถ่วง',
       questions: [
         {
           q: 'การเทน้ำออกจากขวดแล้วน้ำไหลลงสู่แก้ว เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
@@ -194,8 +194,8 @@ const CHAPTER3_P6_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
       ]
     },
     {
-      youtubeId: 'M7lc1UVf-VE',
-      title: 'คำถามที่ 5: แรงดึงดูดของแม่เหล็กตู้เย็น',
+      youtubeId: 'MCpLnx7GvD4',
+      title: 'EP. 5: แรงดึงดูดของแม่เหล็กตู้เย็น',
       questions: [
         {
           q: 'การใช้แผ่นการ์ตูนแม่เหล็กแปะติดตู้เย็น เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
@@ -207,8 +207,8 @@ const CHAPTER3_P6_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
       ]
     },
     {
-      youtubeId: 'M7lc1UVf-VE',
-      title: 'คำถามที่ 6: การคายประจุและไฟช็อตในชีวิตประจำวัน',
+      youtubeId: 'CCiVgoKLZKo',
+      title: 'EP. 6: การคายประจุและไฟช็อตในชีวิตประจำวัน',
       questions: [
         {
           q: 'การจับรถเข็นเหล็กในห้างสรรพสินค้าแล้วรู้สึกโดนไฟช็อตแปร๊บ เกี่ยวข้องกับแรงไฟฟ้าหรือไม่?',
@@ -218,6 +218,11 @@ const CHAPTER3_P6_LESSON: { segments: VideoSegment[]; summaryTitle: string; summ
           explanation: 'ถูกต้อง! เมื่อเราเดินเสียดสีกับพื้นหรือเสื้อผ้า ร่างกายจะสะสมประจุไฟฟ้าสถิตไว้ และเมื่อสัมผัสโลหะอย่างรถเข็น ประจุเหล่านั้นจะถ่ายโอน (คายประจุ) อย่างรวดเร็ว ทำให้รู้สึกเหมือนโดนไฟช็อต'
         }
       ]
+    },
+    {
+      youtubeId: '5ALFsMFETns',
+      title: 'EP. 7: สรุปเรื่องแรงไฟฟ้า',
+      questions: []
     }
   ],
   summaryTitle: '💡 สรุปเรื่องแรงไฟฟ้าและไฟฟ้าสถิต',
@@ -237,12 +242,6 @@ interface Props {
   title?: string;
 }
 
-// ─── YouTube Player type ──────────────────────────────────────────────────────
-interface YTPlayer {
-  destroy: () => void;
-}
-
-
 export function getInteractiveLessonData(grade: string, chapterId: string) {
   if (grade === 'p4' && chapterId === 'chapter3') {
     return CHAPTER3_P4_LESSON;
@@ -250,6 +249,37 @@ export function getInteractiveLessonData(grade: string, chapterId: string) {
   if (grade === 'p6' && chapterId === 'chapter3') {
     return CHAPTER3_P6_LESSON;
   }
+
+  // ─── YouTube VideoID lookup per grade/chapter ─────────────────────────────
+  // ค่า default จะถูกใช้เมื่อยังไม่ได้กำหนด videoId เฉพาะให้แต่ละบทเรียน
+  // อัปเดต lookup นี้เมื่อมี YouTube video พร้อม
+  const YOUTUBE_VIDEO_IDS: Record<string, Record<string, string>> = {
+    p4: {
+      chapter1: 'M7lc1UVf-VE',
+      chapter2: 'M7lc1UVf-VE',
+      chapter4: 'M7lc1UVf-VE',
+      chapter5: 'M7lc1UVf-VE',
+      chapter6: 'M7lc1UVf-VE',
+    },
+    p5: {
+      chapter1: 'M7lc1UVf-VE',
+      chapter2: 'M7lc1UVf-VE',
+      chapter3: 'M7lc1UVf-VE',
+      chapter4: 'M7lc1UVf-VE',
+      chapter5: 'M7lc1UVf-VE',
+      chapter6: 'M7lc1UVf-VE',
+    },
+    p6: {
+      chapter1: 'M7lc1UVf-VE',
+      chapter2: 'M7lc1UVf-VE',
+      chapter4: 'M7lc1UVf-VE',
+      chapter5: 'M7lc1UVf-VE',
+      chapter6: 'M7lc1UVf-VE',
+    },
+  };
+
+  // ดึง videoId ตาม grade/chapter หรือปล่อยว่างถ้าไม่พบ
+  const youtubeId = YOUTUBE_VIDEO_IDS[grade]?.[chapterId] || '';
 
   const rawQuestions = allQuestions[grade]?.[chapterId]?.pretest?.questions || [];
   const segments = rawQuestions.slice(0, 4).map((q, idx) => {
@@ -262,7 +292,7 @@ export function getInteractiveLessonData(grade: string, chapterId: string) {
       ans = q.ans === 'D' ? 'RIGHT' : 'LEFT';
     }
     return {
-      youtubeId: 'M7lc1UVf-VE',
+      youtubeId,
       title: `คำถามทบทวนหัวข้อที่ ${idx + 1}`,
       questions: [
         {
@@ -278,7 +308,7 @@ export function getInteractiveLessonData(grade: string, chapterId: string) {
 
   if (segments.length === 0) {
     segments.push({
-      youtubeId: 'M7lc1UVf-VE',
+      youtubeId,
       title: 'แนะนำบทเรียนเบื้องต้น',
       questions: [
         {
@@ -385,7 +415,7 @@ export default function InteractiveVideoPlayer({
     return () => {
       ytWindow.onYouTubeIframeAPIReady = prevCallback;
     };
-  }, []);;
+  }, []);
 
   // 2. ควบคุมเครื่องเล่นวิดีโอ YouTube
   useEffect(() => {
@@ -396,6 +426,7 @@ export default function InteractiveVideoPlayer({
 
     // ดีเลย์นิดหน่อยให้ Div มั่นใจว่าเรนเดอร์ใน DOM แล้ว
     const timer = setTimeout(() => {
+      if (!currentSegment.youtubeId) return; // ไม่มีวิดีโอไม่ต้องโหลด YT
       try {
         const ytWindow = window as unknown as YouTubeWindow;
         player = new ytWindow.YT!.Player(playerDivId, {
@@ -670,6 +701,10 @@ export default function InteractiveVideoPlayer({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modalStage, currentSegmentIndex, currentQuestionIndex]);
 
+  // ใช้ ref เก็บค่า countdown ล่าสุดเสมอ เพื่อป้องกัน stale closure เมื่อ resume หลัง pause
+  const countdownRef = React.useRef(countdown);
+  countdownRef.current = countdown;
+
   // นับถอยหลัง 60 วินาทีสำหรับข้ามไปคลิปถัดไปในหน้าเฉลย (ใช้ setTimeout recursive)
   useEffect(() => {
     if (modalStage !== 'SHOW_EXPLANATION') {
@@ -691,7 +726,8 @@ export default function InteractiveVideoPlayer({
       setTimeout(() => tick(remaining - 1), 1000);
     };
 
-    tick(countdown);
+    // อ่านจาก ref เพื่อให้ได้ค่าปัจจุบันจริงๆ เมื่อ resume หลัง pause
+    tick(countdownRef.current);
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modalStage, currentSegmentIndex, currentQuestionIndex, isTimerActive]);
@@ -747,7 +783,13 @@ export default function InteractiveVideoPlayer({
 
               {/* วิดีโอ YouTube */}
               <div className="flex-grow w-full h-full relative">
-                <div id={`yt-player-${currentSegmentIndex}`} className="w-full h-full"></div>
+                {currentSegment.youtubeId ? (
+                  <div id={`yt-player-${currentSegmentIndex}`} className="w-full h-full"></div>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center">
+                    <h2 className="text-slate-400 text-2xl font-black mb-4">วิดีโอยังไม่พร้อมใช้งาน ขออภัยมา ณ ที่นี้</h2>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -931,7 +973,9 @@ export default function InteractiveVideoPlayer({
                 <div className="w-24 h-24 bg-amber-300 border-4 border-slate-900 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-[4px_4px_0_0_#000000]">
                   <Trophy size={56} className="text-slate-900" />
                 </div>
-                <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-2">ยินดีด้วย! ผ่านการเรียนรู้แล้ว</h1>
+                <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-2">
+                  {grade === 'p6' && chapterId === 'chapter3' ? 'ไปข้อสอบ post test' : 'ยินดีด้วย! ผ่านการเรียนรู้แล้ว'}
+                </h1>
                 <p className="text-cyan-600 dark:text-cyan-400 text-xl font-black mb-6">คุณได้คะแนนกิจกรรมตอบคำถาม {score} / {totalQuestionsCount} คะแนน</p>
 
                 {/* กล่องสรุปคำสำคัญ */}
@@ -954,7 +998,7 @@ export default function InteractiveVideoPlayer({
                   onClick={onClose}
                   className="px-10 py-4 bg-emerald-500 hover:bg-emerald-400 text-white rounded-2xl font-black text-xl border-4 border-slate-950 flex items-center justify-center gap-2 active:translate-y-[4px] active:shadow-none hover:-translate-y-[2px] transition-all shadow-[4px_4px_0_0_#000000] mx-auto"
                 >
-                  เสร็จสิ้นกิจกรรมหลัก
+                  {grade === 'p6' && chapterId === 'chapter3' ? 'ต่อไป' : 'เสร็จสิ้นกิจกรรมหลัก'}
                 </button>
               </motion.div>
             </div>

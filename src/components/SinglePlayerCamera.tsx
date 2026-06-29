@@ -4,7 +4,7 @@ import Webcam from 'react-webcam';
 import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { getFaceLandmarker } from '@/utils/mediapipe';
 import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
-import { CheckCircle2, XCircle, FileText, Home, RotateCcw, Clock, Trophy, Lightbulb, FastForward } from 'lucide-react';
+import { CheckCircle2, XCircle, FileText, Home, RotateCcw, Trophy, Lightbulb, FastForward } from 'lucide-react';
 import { gameMusic } from '@/utils/gameMusic';
 import ConfettiCelebration from './ConfettiCelebration';
 
@@ -31,7 +31,6 @@ export default function SinglePlayerCamera({ questions, onExit, onViewAnswers, e
   const [status, setStatus] = useState<'SHOW_TITLE' | 'READY' | 'PLAYING' | 'RESULT' | 'SUMMARY'>('SHOW_TITLE');
   const [currentQ, setCurrentQ] = useState(0);
   const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(15);
   const [readyTime, setReadyTime] = useState(3);
   
   const [lockedChoice, setLockedChoice] = useState<'LEFT' | 'RIGHT' | 'TIMEOUT' | null>(null);
@@ -130,7 +129,7 @@ export default function SinglePlayerCamera({ questions, onExit, onViewAnswers, e
         timer = setTimeout(() => setReadyTime(prev => prev - 1), 1000);
       } else {
         gameMusic.playCountdownTickSound(true);
-        setStatus('PLAYING'); setTimeLeft(0); setLockedChoice(null);
+        setStatus('PLAYING'); setLockedChoice(null);
         isProcessingRef.current = false; holdFramesRef.current = { LEFT: 0, RIGHT: 0 };
       }
     } 

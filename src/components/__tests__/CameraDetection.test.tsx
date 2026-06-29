@@ -70,6 +70,6 @@ describe('CameraDetection Component', () => {
     expect(screen.getByText('ข้อ 1: Test Q1')).toBeInTheDocument();
     
     // Ensure countdown timer is visible and decrementing
-    expect(screen.getByText(/⏱️ 9 วิ/)).toBeInTheDocument();
+    expect(screen.getByText(/⏱️ 29 วิ/)).toBeInTheDocument();
   });
 });

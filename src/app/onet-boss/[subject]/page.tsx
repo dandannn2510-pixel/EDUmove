@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, Zap, Trophy, AlertTriangle, Lightbulb, Target, Brain, Sparkles, Gift, Crosshair, Heart, Swords, Flame , XCircle, ArrowLeft } from 'lucide-react';
+import { Shield, Zap, Trophy, AlertTriangle, Lightbulb, Target, Brain, Sparkles, Gift, Crosshair, Heart, Swords, XCircle, ArrowLeft } from 'lucide-react';
 import { gameMusic } from '@/utils/gameMusic';
 import ConfettiCelebration from '@/components/ConfettiCelebration';
 
@@ -53,10 +53,6 @@ export default function OnetFinalBossRaidPage() {
 
   const [correctStreak, setCorrectStreak] = useState(0);
   const [showAnswers, setShowAnswers] = useState(false);
-  const skipQuestion = () => {
-    setCorrectStreak(0);
-    goToNextQuestion();
-  };
   type ChestReward = { type: string; val: number; icon: React.ReactNode; text: string; color: string; };
   const [chestRewards, setChestRewards] = useState<ChestReward[]>([]);
   const [openedChestIndex, setOpenedChestIndex] = useState<number | null>(null);
