@@ -31,6 +31,11 @@ export const metadata: Metadata = {
   description: 'แพลตฟอร์มการเรียนรู้วิทยาศาสตร์และคณิตศาสตร์ระดับประถมศึกษา ป.4-6 ด้วยระบบ AI กล้องตรวจจับท่าทาง',
   keywords: ['วิทยาศาสตร์', 'คณิตศาสตร์', 'ประถมศึกษา', 'ป.4', 'ป.5', 'ป.6', 'O-NET', 'EDUmove', 'AI classroom'],
   authors: [{ name: 'EDUmove Project' }],
+  icons: {
+    icon: '/logo.png',
+    shortcut: '/logo.png',
+    apple: '/logo.png',
+  },
   openGraph: {
     title: 'EDUmove | วิทยาศาสตร์ & คณิตศาสตร์',
     description: 'เรียนสนุกด้วย AI กล้อง — สำหรับนักเรียน ป.4-6',
