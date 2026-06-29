@@ -29,7 +29,6 @@ export const metadata: Metadata = {
     template: '%s | EDUmove',
   },
   description: 'แพลตฟอร์มการเรียนรู้วิทยาศาสตร์และคณิตศาสตร์ระดับประถมศึกษา ป.4-6 ด้วยระบบ AI กล้องตรวจจับท่าทาง',
-  manifest: '/manifest.json',
   keywords: ['วิทยาศาสตร์', 'คณิตศาสตร์', 'ประถมศึกษา', 'ป.4', 'ป.5', 'ป.6', 'O-NET', 'EDUmove', 'AI classroom'],
   authors: [{ name: 'EDUmove Project' }],
   openGraph: {

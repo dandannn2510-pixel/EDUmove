@@ -198,24 +198,28 @@ export default function TugOfWarCamera({ questions, onFinish, onViewAnswers }: {
     const isCorrect = selected !== 'TIMEOUT' && selected === qData.ans;
 
     setTimeout(() => {
-      let newHp = hp;
-      if (isCorrect) {
-        if (fastestPlayer === 'LEFT') newHp = Math.max(0, hp - 20);
-        if (fastestPlayer === 'RIGHT') newHp = Math.min(100, hp + 20);
-      }
-      setHp(newHp);
-
-      setTimeout(() => {
-        if (newHp <= 0 || newHp >= 100) {
-          setStatus('SUMMARY');
-        } else {
-          setCurrentQ(prev => (prev + 1) % questions.length);
-          setStatus('WAIT_TURN_BACK');
-          setFastestPlayer(null);
-          setLockedChoice(null);
-          isProcessingRef.current = false;
+      // ใช้ functional setter เพื่อป้องกัน stale closure บน hp
+      setHp(prevHp => {
+        let newHp = prevHp;
+        if (isCorrect) {
+          if (fastestPlayer === 'LEFT') newHp = Math.max(0, prevHp - 20);
+          if (fastestPlayer === 'RIGHT') newHp = Math.min(100, prevHp + 20);
         }
-      }, 1500);
+
+        setTimeout(() => {
+          if (newHp <= 0 || newHp >= 100) {
+            setStatus('SUMMARY');
+          } else {
+            setCurrentQ(prev => (prev + 1) % questions.length);
+            setStatus('WAIT_TURN_BACK');
+            setFastestPlayer(null);
+            setLockedChoice(null);
+            isProcessingRef.current = false;
+          }
+        }, 1500);
+
+        return newHp;
+      });
     }, isCorrect ? 1200 : 1000);
   };
 
@@ -422,7 +426,7 @@ export default function TugOfWarCamera({ questions, onFinish, onViewAnswers }: {
       {status !== 'INTRO' && (
         <div className="absolute bottom-6 left-6 z-[100] flex flex-wrap items-center gap-3">
           <button 
-            onClick={() => onFinish()}
+            onClick={() => onFinish(hp < 50 ? 1 : 0, hp > 50 ? 1 : 0)}
             className="bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2"
           >
             <XCircle size={20} /> ออกจากการทดสอบ

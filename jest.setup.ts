@@ -44,3 +44,34 @@ jest.mock('next/font/google', () => ({
     variable: '--mocked-prompt',
   }),
 }));
+
+// Mock AudioContext for gameMusic
+Object.defineProperty(window, 'AudioContext', {
+  writable: true,
+  value: jest.fn().mockImplementation(() => ({
+    createOscillator: jest.fn(() => ({
+      type: 'sine',
+      frequency: { 
+        setValueAtTime: jest.fn(),
+        exponentialRampToValueAtTime: jest.fn(),
+        linearRampToValueAtTime: jest.fn()
+      },
+      connect: jest.fn(),
+      start: jest.fn(),
+      stop: jest.fn(),
+    })),
+    createGain: jest.fn(() => ({
+      connect: jest.fn(),
+      gain: { 
+        setValueAtTime: jest.fn(), 
+        exponentialRampToValueAtTime: jest.fn(),
+        linearRampToValueAtTime: jest.fn()
+      },
+    })),
+    destination: {},
+    currentTime: 0,
+    resume: jest.fn(),
+    suspend: jest.fn(),
+    close: jest.fn(),
+  })),
+});

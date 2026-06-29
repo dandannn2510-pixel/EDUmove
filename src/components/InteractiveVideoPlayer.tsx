@@ -237,12 +237,6 @@ interface Props {
   title?: string;
 }
 
-// ─── YouTube Player type ──────────────────────────────────────────────────────
-interface YTPlayer {
-  destroy: () => void;
-}
-
-
 export function getInteractiveLessonData(grade: string, chapterId: string) {
   if (grade === 'p4' && chapterId === 'chapter3') {
     return CHAPTER3_P4_LESSON;
@@ -250,6 +244,37 @@ export function getInteractiveLessonData(grade: string, chapterId: string) {
   if (grade === 'p6' && chapterId === 'chapter3') {
     return CHAPTER3_P6_LESSON;
   }
+
+  // ─── YouTube VideoID lookup per grade/chapter ─────────────────────────────
+  // ค่า default จะถูกใช้เมื่อยังไม่ได้กำหนด videoId เฉพาะให้แต่ละบทเรียน
+  // อัปเดต lookup นี้เมื่อมี YouTube video พร้อม
+  const YOUTUBE_VIDEO_IDS: Record<string, Record<string, string>> = {
+    p4: {
+      chapter1: 'M7lc1UVf-VE',
+      chapter2: 'M7lc1UVf-VE',
+      chapter4: 'M7lc1UVf-VE',
+      chapter5: 'M7lc1UVf-VE',
+      chapter6: 'M7lc1UVf-VE',
+    },
+    p5: {
+      chapter1: 'M7lc1UVf-VE',
+      chapter2: 'M7lc1UVf-VE',
+      chapter3: 'M7lc1UVf-VE',
+      chapter4: 'M7lc1UVf-VE',
+      chapter5: 'M7lc1UVf-VE',
+      chapter6: 'M7lc1UVf-VE',
+    },
+    p6: {
+      chapter1: 'M7lc1UVf-VE',
+      chapter2: 'M7lc1UVf-VE',
+      chapter4: 'M7lc1UVf-VE',
+      chapter5: 'M7lc1UVf-VE',
+      chapter6: 'M7lc1UVf-VE',
+    },
+  };
+
+  // ดึง videoId ตาม grade/chapter หรือใช้ค่า placeholder ถ้าไม่พบ
+  const youtubeId = YOUTUBE_VIDEO_IDS[grade]?.[chapterId] ?? 'M7lc1UVf-VE';
 
   const rawQuestions = allQuestions[grade]?.[chapterId]?.pretest?.questions || [];
   const segments = rawQuestions.slice(0, 4).map((q, idx) => {
@@ -262,7 +287,7 @@ export function getInteractiveLessonData(grade: string, chapterId: string) {
       ans = q.ans === 'D' ? 'RIGHT' : 'LEFT';
     }
     return {
-      youtubeId: 'M7lc1UVf-VE',
+      youtubeId,
       title: `คำถามทบทวนหัวข้อที่ ${idx + 1}`,
       questions: [
         {
@@ -278,7 +303,7 @@ export function getInteractiveLessonData(grade: string, chapterId: string) {
 
   if (segments.length === 0) {
     segments.push({
-      youtubeId: 'M7lc1UVf-VE',
+      youtubeId,
       title: 'แนะนำบทเรียนเบื้องต้น',
       questions: [
         {
@@ -385,7 +410,7 @@ export default function InteractiveVideoPlayer({
     return () => {
       ytWindow.onYouTubeIframeAPIReady = prevCallback;
     };
-  }, []);;
+  }, []);
 
   // 2. ควบคุมเครื่องเล่นวิดีโอ YouTube
   useEffect(() => {
@@ -670,6 +695,10 @@ export default function InteractiveVideoPlayer({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modalStage, currentSegmentIndex, currentQuestionIndex]);
 
+  // ใช้ ref เก็บค่า countdown ล่าสุดเสมอ เพื่อป้องกัน stale closure เมื่อ resume หลัง pause
+  const countdownRef = React.useRef(countdown);
+  countdownRef.current = countdown;
+
   // นับถอยหลัง 60 วินาทีสำหรับข้ามไปคลิปถัดไปในหน้าเฉลย (ใช้ setTimeout recursive)
   useEffect(() => {
     if (modalStage !== 'SHOW_EXPLANATION') {
@@ -691,7 +720,8 @@ export default function InteractiveVideoPlayer({
       setTimeout(() => tick(remaining - 1), 1000);
     };
 
-    tick(countdown);
+    // อ่านจาก ref เพื่อให้ได้ค่าปัจจุบันจริงๆ เมื่อ resume หลัง pause
+    tick(countdownRef.current);
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modalStage, currentSegmentIndex, currentQuestionIndex, isTimerActive]);

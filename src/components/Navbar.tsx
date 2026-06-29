@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { Settings, Palette, Volume2, VolumeX, HelpCircle, ArrowLeft, Home } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
@@ -70,7 +71,7 @@ export default function Navbar() {
           <Link href="/" className="group flex items-center gap-3 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 rounded-2xl">
             {/* 💡 เอากรอบออกแล้ว! และตั้งค่าให้แสดงรูปแบบอิสระ (object-contain) */}
             <div className="shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
-              <img src="/logo.png" alt="EDUmove logo" className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-sm" />
+              <Image src="/logo.png" alt="EDUmove logo" width={48} height={48} className="h-10 w-10 sm:h-12 sm:w-12 object-contain drop-shadow-sm" />
             </div>
             <span className="hidden sm:block text-xl font-bold tracking-tight">
               <span className="text-orange-500">EDU</span>

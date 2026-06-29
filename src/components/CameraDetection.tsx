@@ -330,7 +330,10 @@ export default function CameraDetection({
       {status !== 'SHOW_TITLE' && (
         <div className="absolute bottom-6 left-6 z-[100] flex flex-wrap items-center gap-3">
           <button 
-            onClick={() => onFinish(0, 0)}
+            onClick={() => {
+              const latestState = useGameStore.getState();
+              onFinish(latestState.leftScore, latestState.rightScore);
+            }}
             className="bg-white/20 backdrop-blur-md hover:bg-rose-500 text-white px-5 py-2.5 rounded-full font-bold shadow-lg transition-colors border-2 border-white/50 flex items-center gap-2"
           >
             <XCircle size={20} /> ออกจากการทดสอบ
