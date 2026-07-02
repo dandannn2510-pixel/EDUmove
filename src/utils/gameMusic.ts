@@ -192,7 +192,7 @@ class KahootMusicSynth {
       osc.frequency.setValueAtTime(freq, now + index * 0.08);
 
       gainNode.gain.setValueAtTime(0, now + index * 0.08);
-      gainNode.gain.linearRampToValueAtTime(0.60, now + index * 0.08 + 0.01); // Increased from 0.2 to be louder than music
+      gainNode.gain.linearRampToValueAtTime(1.2, now + index * 0.08 + 0.01); // Increased from 0.60 to be 100% louder
       gainNode.gain.exponentialRampToValueAtTime(0.001, now + index * 0.08 + 0.25);
 
       osc.connect(gainNode);
